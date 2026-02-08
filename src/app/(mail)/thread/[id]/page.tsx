@@ -2,6 +2,12 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
 import Link from "next/link";
+import {
+  ThreadToolbarActions,
+  StarButton,
+  ReplyButton,
+  ForwardButton,
+} from "@/components/mail/thread-actions";
 
 async function getThread(threadId: string) {
   const sessionId = await requireSessionId();
@@ -122,9 +128,9 @@ export default async function ThreadPage({
   const { thread, messages, labels } = data;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex items-center gap-1 border-b border-[var(--color-border-subtle)] px-4 py-2 shrink-0">
+      <div className="flex shrink-0 items-center gap-1 border-b border-[var(--color-border-subtle)] px-4 py-2">
         <Link
           href="/"
           className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
@@ -143,62 +149,8 @@ export default async function ThreadPage({
           </svg>
         </Link>
 
-        <button
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-          title="Archive"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="20" height="5" x="2" y="3" rx="1" />
-            <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
-            <path d="M10 12h4" />
-          </svg>
-        </button>
-        <button
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-          title="Delete"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 6h18" />
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-          </svg>
-        </button>
-        <button
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-          title="Mark unread"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="20" height="16" x="2" y="4" rx="2" />
-            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-          </svg>
-        </button>
+        <ThreadToolbarActions threadId={thread.id} />
+
         <button
           className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
           title="Snooze"
@@ -257,7 +209,7 @@ export default async function ThreadPage({
       </div>
 
       {/* Thread header */}
-      <div className="border-b border-[var(--color-border-subtle)] px-6 py-4 shrink-0">
+      <div className="shrink-0 border-b border-[var(--color-border-subtle)] px-6 py-4">
         <h1 className="text-xl font-normal text-[var(--color-text-primary)]">
           {thread.subject}
         </h1>
@@ -281,7 +233,7 @@ export default async function ThreadPage({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl px-6 py-4 space-y-4">
+        <div className="mx-auto max-w-4xl space-y-4 px-6 py-4">
           {messages.map((message, index) => {
             const contact = message.gmail_contacts;
             const senderName = contact?.is_self
@@ -309,7 +261,7 @@ export default async function ThreadPage({
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-sm font-medium text-[var(--color-text-secondary)]">
                     {senderName.charAt(0).toUpperCase()}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
                       <span className="text-sm font-semibold text-[var(--color-text-primary)]">
                         {senderName}
@@ -322,46 +274,14 @@ export default async function ThreadPage({
                       to {toNames.length > 0 ? toNames.join(", ") : "me"}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-xs text-[var(--color-text-tertiary)] mr-1">
+                  <div className="flex shrink-0 items-center gap-1">
+                    <span className="mr-1 text-xs text-[var(--color-text-tertiary)]">
                       {formatRelativeDate(new Date(message.sent_at))}
                     </span>
-                    <button
-                      className={`rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
-                        message.is_starred
-                          ? "text-[var(--color-star)]"
-                          : "text-[var(--color-text-tertiary)]"
-                      }`}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill={message.is_starred ? "currentColor" : "none"}
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                    </button>
-                    <button
-                      className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
-                      title="Reply"
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="9 17 4 12 9 7" />
-                        <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-                      </svg>
-                    </button>
+                    <StarButton
+                      emailId={message.id}
+                      starred={message.is_starred}
+                    />
                     <button
                       className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
                       title="More"
@@ -384,49 +304,30 @@ export default async function ThreadPage({
 
                 {/* Body */}
                 <div
-                  className="px-5 pb-5 pl-[4.25rem] text-sm leading-relaxed text-[var(--color-text-primary)] [&_a]:text-[var(--color-accent-primary)] [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--color-border-default)] [&_blockquote]:pl-3 [&_blockquote]:text-[var(--color-text-secondary)] [&_p]:mb-2 [&_table]:text-sm"
+                  className="px-5 pb-5 pl-[4.25rem] text-sm leading-relaxed text-[var(--color-text-primary)] [&_a]:text-[var(--color-accent-primary)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--color-border-default)] [&_blockquote]:pl-3 [&_blockquote]:text-[var(--color-text-secondary)] [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_table]:text-sm [&_ul]:list-disc [&_ul]:pl-5"
                   dangerouslySetInnerHTML={{ __html: message.body_html }}
                 />
 
                 {/* Reply/Forward on last message */}
                 {isLast && !message.is_draft && (
                   <div className="mx-5 mb-5 ml-[4.25rem] flex gap-2">
-                    <button className="rounded-[var(--radius-full)] border border-[var(--color-border-default)] px-5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]">
-                      <span className="flex items-center gap-2">
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="9 17 4 12 9 7" />
-                          <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-                        </svg>
-                        Reply
-                      </span>
-                    </button>
-                    <button className="rounded-[var(--radius-full)] border border-[var(--color-border-default)] px-5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]">
-                      <span className="flex items-center gap-2">
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="15 17 20 12 15 7" />
-                          <path d="M4 18v-2a4 4 0 0 1 4-4h12" />
-                        </svg>
-                        Forward
-                      </span>
-                    </button>
+                    <ReplyButton
+                      threadId={thread.id}
+                      subject={thread.subject}
+                      senderName={senderName}
+                      senderEmail={senderEmail}
+                      bodyHtml={message.body_html}
+                      sentAt={formatRelativeDate(new Date(message.sent_at))}
+                      toNames={toNames}
+                    />
+                    <ForwardButton
+                      threadId={thread.id}
+                      subject={thread.subject}
+                      senderName={senderName}
+                      senderEmail={senderEmail}
+                      bodyHtml={message.body_html}
+                      sentAt={formatRelativeDate(new Date(message.sent_at))}
+                    />
                   </div>
                 )}
               </div>
