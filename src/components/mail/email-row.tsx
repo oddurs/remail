@@ -1,6 +1,15 @@
 "use client";
 
+import { useTransition } from "react";
+import {
+  toggleStar,
+  archiveEmails,
+  trashEmails,
+  markReadStatus,
+} from "@/lib/actions/email";
+
 export function EmailRow({
+  emailId,
   threadId,
   sender,
   subject,
@@ -12,6 +21,7 @@ export function EmailRow({
   isDraft = false,
   labels = [],
 }: {
+  emailId: string;
   threadId: string;
   sender: string;
   subject: string;
@@ -23,13 +33,49 @@ export function EmailRow({
   isDraft?: boolean;
   labels?: Array<{ name: string; color: string }>;
 }) {
+  const [isStarPending, startStarTransition] = useTransition();
+  const [isActionPending, startActionTransition] = useTransition();
+
+  const handleStarClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startStarTransition(async () => {
+      await toggleStar(emailId, !starred);
+    });
+  };
+
+  const handleArchive = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startActionTransition(async () => {
+      await archiveEmails([emailId]);
+    });
+  };
+
+  const handleTrash = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startActionTransition(async () => {
+      await trashEmails([emailId]);
+    });
+  };
+
+  const handleToggleRead = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startActionTransition(async () => {
+      await markReadStatus([emailId], !unread ? false : true);
+    });
+  };
+
   return (
     <a
       href={`/thread/${threadId}`}
       className={`
-        group flex cursor-pointer items-center gap-2 px-4 py-2 transition-[var(--transition-fast)]
+        group relative flex cursor-pointer items-center gap-2 px-4 py-2 transition-[var(--transition-fast)]
         ${unread ? "bg-[var(--color-unread-bg)]" : "bg-[var(--color-read-bg)]"}
-        hover:shadow-[var(--shadow-xs)] hover:z-[1] relative
+        hover:z-[1] hover:shadow-[var(--shadow-xs)]
+        ${isActionPending ? "opacity-50" : ""}
       `}
     >
       {/* Checkbox */}
@@ -53,7 +99,8 @@ export function EmailRow({
 
       {/* Star */}
       <button
-        onClick={(e) => e.preventDefault()}
+        onClick={handleStarClick}
+        disabled={isStarPending}
         className={`shrink-0 rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
           starred
             ? "text-[var(--color-star)]"
@@ -141,9 +188,9 @@ export function EmailRow({
           </div>
         )}
 
-        {/* Time */}
+        {/* Time — visible by default, hidden on hover */}
         <span
-          className={`shrink-0 text-xs tabular-nums ${
+          className={`shrink-0 text-xs tabular-nums group-hover:invisible ${
             unread
               ? "font-semibold text-[var(--color-text-primary)]"
               : "text-[var(--color-text-tertiary)]"
@@ -151,6 +198,119 @@ export function EmailRow({
         >
           {time}
         </span>
+      </div>
+
+      {/* Hover actions — appear on hover, positioned over the timestamp */}
+      <div className="invisible absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-0.5 rounded-[var(--radius-sm)] bg-[var(--color-bg-primary)] px-1 shadow-[var(--shadow-sm)] group-hover:visible">
+        {/* Archive */}
+        <button
+          onClick={handleArchive}
+          disabled={isActionPending}
+          className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+          title="Archive"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect width="20" height="5" x="2" y="3" rx="1" />
+            <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+            <path d="M10 12h4" />
+          </svg>
+        </button>
+
+        {/* Delete */}
+        <button
+          onClick={handleTrash}
+          disabled={isActionPending}
+          className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+          title="Delete"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+        </button>
+
+        {/* Mark read/unread */}
+        <button
+          onClick={handleToggleRead}
+          disabled={isActionPending}
+          className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+          title={unread ? "Mark as read" : "Mark as unread"}
+        >
+          {unread ? (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              <path d="m16 19 2 2 4-4" />
+            </svg>
+          ) : (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+          )}
+        </button>
+
+        {/* Snooze */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Snooze picker will be added later
+          }}
+          className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+          title="Snooze"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </button>
       </div>
     </a>
   );

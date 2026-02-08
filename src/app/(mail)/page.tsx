@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
 import { EmailRow } from "@/components/mail/email-row";
+import Link from "next/link";
 
 async function getInboxEmails(category: string = "primary") {
   const sessionId = await requireSessionId();
@@ -279,6 +280,7 @@ export default async function InboxPage({
             return (
               <EmailRow
                 key={email.id}
+                emailId={email.id}
                 threadId={email.thread_id}
                 sender={senderName}
                 subject={email.subject}
@@ -315,7 +317,7 @@ function CategoryTab({
   count?: number;
 }) {
   return (
-    <a
+    <Link
       href={value === "primary" ? "/" : `/?category=${value}`}
       className={`
         relative flex items-center gap-2 px-6 py-3.5 text-sm font-medium transition-[var(--transition-fast)]
@@ -337,6 +339,6 @@ function CategoryTab({
       {active && (
         <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-[var(--radius-full)] bg-[var(--color-accent-primary)]" />
       )}
-    </a>
+    </Link>
   );
 }
