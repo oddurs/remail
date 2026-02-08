@@ -1,0 +1,111 @@
+/**
+ * Contact personas for seed data.
+ * Each contact has a distinct voice and typical email patterns.
+ */
+export const CONTACT_TEMPLATES = [
+  {
+    name: "Sarah Chen",
+    email: "sarah.chen@company.com",
+    avatar_url: null,
+    category: "primary" as const,
+    voice: "professional, direct, technical",
+  },
+  {
+    name: "Alex Rivera",
+    email: "alex.rivera@gmail.com",
+    avatar_url: null,
+    category: "primary" as const,
+    voice: "casual, friendly, uses emoji",
+  },
+  {
+    name: "Mom",
+    email: "margaret.w@outlook.com",
+    avatar_url: null,
+    category: "primary" as const,
+    voice: "warm, caring, slightly formal",
+  },
+  {
+    name: "GitHub",
+    email: "notifications@github.com",
+    avatar_url: null,
+    category: "updates" as const,
+    voice: "automated, concise",
+  },
+  {
+    name: "Jira",
+    email: "jira@company.atlassian.net",
+    avatar_url: null,
+    category: "updates" as const,
+    voice: "automated, structured",
+  },
+  {
+    name: "LinkedIn",
+    email: "notifications@linkedin.com",
+    avatar_url: null,
+    category: "social" as const,
+    voice: "professional networking",
+  },
+  {
+    name: "Spotify",
+    email: "no-reply@spotify.com",
+    avatar_url: null,
+    category: "promotions" as const,
+    voice: "upbeat, music-focused",
+  },
+  {
+    name: "Chase Bank",
+    email: "no-reply@chase.com",
+    avatar_url: null,
+    category: "updates" as const,
+    voice: "formal, financial",
+  },
+  {
+    name: "The Verge",
+    email: "newsletter@theverge.com",
+    avatar_url: null,
+    category: "forums" as const,
+    voice: "journalistic, tech-savvy",
+  },
+  {
+    name: "Dr. Patel's Office",
+    email: "appointments@patelhealthcare.com",
+    avatar_url: null,
+    category: "updates" as const,
+    voice: "professional, medical",
+  },
+  {
+    name: "David Kim",
+    email: "d.kim@company.com",
+    avatar_url: null,
+    category: "primary" as const,
+    voice: "professional, collaborative",
+  },
+  {
+    name: "Figma",
+    email: "notifications@figma.com",
+    avatar_url: null,
+    category: "updates" as const,
+    voice: "design tool notifications",
+  },
+  {
+    name: "Amazon",
+    email: "shipment-tracking@amazon.com",
+    avatar_url: null,
+    category: "promotions" as const,
+    voice: "transactional, retail",
+  },
+  {
+    name: "Rachel Torres",
+    email: "rachel.t@gmail.com",
+    avatar_url: null,
+    category: "primary" as const,
+    voice: "friendly, enthusiastic",
+  },
+  {
+    name: "Vercel",
+    email: "notifications@vercel.com",
+    avatar_url: null,
+    category: "updates" as const,
+    voice: "deployment notifications",
+  },
+] as const;

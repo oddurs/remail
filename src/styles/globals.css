@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+/*
+ * Gmail Redesign — Design Token System
+ *
+ * All colors, shadows, radii, and transitions are defined as CSS custom properties.
+ * Components use these tokens exclusively — never raw hex values.
+ * Theme switching works by swapping the property values on [data-theme].
+ */
+
+/* ─── Light Theme (default) ─────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #fafafa;
+  --color-bg-tertiary: #f4f4f5;
+  --color-bg-elevated: #ffffff;
+  --color-bg-sunken: #e4e4e7;
+  --color-bg-hover: rgba(0, 0, 0, 0.04);
+  --color-bg-active: rgba(0, 0, 0, 0.08);
+  --color-bg-selected: rgba(0, 0, 0, 0.05);
+  --color-bg-overlay: rgba(0, 0, 0, 0.4);
+
+  /* Text */
+  --color-text-primary: #09090b;
+  --color-text-secondary: #52525b;
+  --color-text-tertiary: #a1a1aa;
+  --color-text-inverse: #fafafa;
+  --color-text-link: var(--color-accent-primary);
+
+  /* Borders */
+  --color-border-default: #e4e4e7;
+  --color-border-subtle: #f4f4f5;
+  --color-border-strong: #a1a1aa;
+
+  /* Accent — neutral dark tones for light mode */
+  --color-accent-primary: #18181b;
+  --color-accent-hover: #27272a;
+  --color-accent-active: #09090b;
+  --color-accent-muted: #e4e4e7;
+  --color-accent-subtle: #f4f4f5;
+
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-success-muted: #f0fdf4;
+  --color-warning: #ca8a04;
+  --color-warning-muted: #fefce8;
+  --color-error: #dc2626;
+  --color-error-muted: #fef2f2;
+  --color-info: #52525b;
+  --color-info-muted: #f4f4f5;
+
+  /* Gmail-specific */
+  --color-star: #ca8a04;
+  --color-important: #ca8a04;
+  --color-unread-bg: #ffffff;
+  --color-read-bg: #fafafa;
+  --color-compose-bg: #ffffff;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 100ms ease;
+  --transition-normal: 150ms ease;
+  --transition-slow: 250ms ease-in-out;
+
+  /* Sidebar */
+  --sidebar-width: 256px;
+  --sidebar-collapsed-width: 72px;
+
+  /* Topbar */
+  --topbar-height: 64px;
+
+  /* Z-index scale */
+  --z-base: 0;
+  --z-sidebar: 20;
+  --z-topbar: 30;
+  --z-dropdown: 40;
+  --z-modal: 50;
+  --z-compose: 45;
+  --z-toast: 60;
+  --z-tooltip: 70;
+}
+
+/* ─── Dark Theme ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* Backgrounds — true neutral darks, no blue tint */
+  --color-bg-primary: #141414;
+  --color-bg-secondary: #0a0a0a;
+  --color-bg-tertiary: #1e1e1e;
+  --color-bg-elevated: #1e1e1e;
+  --color-bg-sunken: #050505;
+  --color-bg-hover: rgba(255, 255, 255, 0.07);
+  --color-bg-active: rgba(255, 255, 255, 0.12);
+  --color-bg-selected: rgba(255, 255, 255, 0.08);
+  --color-bg-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Text */
+  --color-text-primary: #e4e4e7;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  --color-text-inverse: #141414;
+  --color-text-link: #a1a1aa;
+
+  /* Borders */
+  --color-border-default: #27272a;
+  --color-border-subtle: #1e1e1e;
+  --color-border-strong: #52525b;
+
+  /* Accent — neutral white tones for dark mode */
+  --color-accent-primary: #e4e4e7;
+  --color-accent-hover: #fafafa;
+  --color-accent-active: #d4d4d8;
+  --color-accent-muted: rgba(228, 228, 231, 0.15);
+  --color-accent-subtle: rgba(228, 228, 231, 0.06);
+
+  /* Semantic */
+  --color-success: #4ade80;
+  --color-success-muted: rgba(74, 222, 128, 0.12);
+  --color-warning: #facc15;
+  --color-warning-muted: rgba(250, 204, 21, 0.12);
+  --color-error: #f87171;
+  --color-error-muted: rgba(248, 113, 113, 0.12);
+  --color-info: #a1a1aa;
+  --color-info-muted: rgba(161, 161, 170, 0.12);
+
+  /* Gmail-specific */
+  --color-star: #facc15;
+  --color-important: #facc15;
+  --color-unread-bg: #1a1a1a;
+  --color-read-bg: #141414;
+  --color-compose-bg: #1e1e1e;
+
+  /* Shadows — barely visible on true dark, rely on borders for elevation */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6), 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6), 0 8px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* ─── Base Styles ───────────────────────────────────────────────────────────── */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-family:
+    "Google Sans",
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-default);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-strong);
+}
+
+/* ─── Selection ─────────────────────────────────────────────────────────────── */
+::selection {
+  background-color: var(--color-accent-muted);
+  color: var(--color-text-primary);
+}
+
+/* ─── Focus Ring ────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ─── Theme Transition ──────────────────────────────────────────────────────── */
+[data-theme-transitioning] * {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease !important;
+}
