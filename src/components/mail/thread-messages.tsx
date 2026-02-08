@@ -11,6 +11,7 @@ import {
   MessageMoreMenu,
 } from "@/components/mail/thread-actions";
 import { useCompose } from "@/components/mail/compose-provider";
+import { MdSentimentSatisfiedAlt, MdReply } from "react-icons/md";
 
 /* ─── Types ──────────────────────────────────────────────────────────────────── */
 
@@ -276,40 +277,14 @@ function ExpandedMessage({
             title="Add reaction"
             aria-label="Add reaction"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-              <line x1="9" x2="9.01" y1="9" y2="9" />
-              <line x1="15" x2="15.01" y1="9" y2="9" />
-            </svg>
+            <MdSentimentSatisfiedAlt className="size-3.5" />
           </button>
           <button
             className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
             title="Reply"
             aria-label="Reply"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="9 17 4 12 9 7" />
-              <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-            </svg>
+            <MdReply className="size-3.5" />
           </button>
           <MessageMoreMenu />
         </div>
@@ -363,21 +338,7 @@ function ExpandedMessage({
                 title="Add reaction"
                 aria-label="Add reaction"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                  <line x1="9" x2="9.01" y1="9" y2="9" />
-                  <line x1="15" x2="15.01" y1="9" y2="9" />
-                </svg>
+                <MdSentimentSatisfiedAlt className="size-3.5" />
               </button>
             </div>
           )}

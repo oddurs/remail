@@ -11,7 +11,7 @@ import { SearchBar } from "@/components/mail/search-bar";
 import { KeyboardShortcuts } from "@/components/mail/keyboard-shortcuts";
 import { AvatarDropdown } from "./avatar-dropdown";
 import { IconButton } from "@/components/ui/icon-button";
-import { Menu, HelpCircle, Settings, LayoutGrid } from "lucide-react";
+import { MdMenu, MdHelpOutline, MdSettings, MdApps } from "react-icons/md";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -22,7 +22,7 @@ async function getSidebarData() {
   // Get user labels
   const { data: labels } = await supabase
     .from("gmail_labels")
-    .select("id, name, color, type, position")
+    .select("id, name, color, icon, type, position")
     .eq("session_id", sessionId)
     .eq("type", "user")
     .eq("show_in_list", true)
@@ -96,17 +96,14 @@ export default async function MailLayout({
     <ToastProvider>
       <ComposeProvider defaultSignature={defaultSignature}>
         <SelectionProvider>
-        <div className="flex h-screen flex-col overflow-hidden">
-          {/* Topbar — full width, above sidebar + content */}
-          <header className="flex h-[var(--topbar-height)] shrink-0 items-center gap-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-4">
-            {/* Hamburger */}
-            <IconButton tooltip="Main menu" aria-label="Main menu">
-              <Menu className="size-5" />
-            </IconButton>
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 mr-4 shrink-0">
-              <svg width="30" height="24" viewBox="0 0 30 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div className="flex h-screen flex-col overflow-hidden bg-[var(--color-bg-secondary)]">
+          {/* Topbar — floating, no background */}
+          <header className="flex h-[var(--topbar-height)] shrink-0 items-center px-4">
+            {/* Left section — matches sidebar width, padded to align with nav items */}
+            <div className="flex w-[calc(var(--sidebar-width)+16px)] shrink-0 items-center justify-between pl-4 pr-6">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-1.5 shrink-0">
+                <svg width="24" height="20" viewBox="0 0 30 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* Envelope body with rounded corners */}
                 <rect x="1" y="1" width="28" height="22" rx="4" fill="transparent"/>
                 {/* Left panel — blue */}
@@ -124,27 +121,32 @@ export default async function MailLayout({
                 {/* Highlight stroke for depth */}
                 <path d="M8 10L15 16L22 10" stroke="white" strokeWidth="0.5" opacity="0.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-[22px] text-[var(--color-text-secondary)]">
+              <span className="text-[18px] font-medium text-[var(--color-text-secondary)]">
                 ReMail
               </span>
             </Link>
 
-            {/* Search bar */}
-            <Suspense>
-              <SearchBar />
-            </Suspense>
+              <ComposeButton />
+            </div>
+
+            {/* Search bar — left-aligned with main content */}
+            <div className="flex flex-1 items-center gap-2">
+              <Suspense>
+                <SearchBar />
+              </Suspense>
+            </div>
 
             {/* Right section */}
             <div className="ml-auto flex items-center gap-0.5">
               {/* Help */}
               <IconButton tooltip="Help" aria-label="Help">
-                <HelpCircle className="size-5" />
+                <MdHelpOutline className="size-5" />
               </IconButton>
 
               {/* Settings */}
               <IconButton tooltip="Settings" aria-label="Settings" asChild>
                 <Link href="/settings">
-                  <Settings className="size-5" />
+                  <MdSettings className="size-5" />
                 </Link>
               </IconButton>
 
@@ -153,7 +155,7 @@ export default async function MailLayout({
 
               {/* Google Apps grid */}
               <IconButton tooltip="Google apps" aria-label="Google apps">
-                <LayoutGrid className="size-5" />
+                <MdApps className="size-5" />
               </IconButton>
 
               {/* Avatar dropdown */}
@@ -166,14 +168,14 @@ export default async function MailLayout({
           </header>
 
           {/* Sidebar + Content below topbar */}
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 gap-4 overflow-hidden px-4 pb-4">
             {/* Sidebar */}
-            <aside className="flex w-[var(--sidebar-width)] shrink-0 flex-col bg-[var(--color-bg-primary)]">
-              {/* Compose button */}
-              <div className="p-4">
-                <ComposeButton />
+            <aside className="flex w-[var(--sidebar-width)] shrink-0 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] shadow-[var(--shadow-xs)]">
+              <div className="flex items-center px-3 pt-2">
+                <IconButton tooltip="Main menu" aria-label="Main menu">
+                  <MdMenu className="size-5" />
+                </IconButton>
               </div>
-
               {/* Navigation */}
               <SidebarNav
                 inboxCount={inboxCount}
@@ -184,7 +186,7 @@ export default async function MailLayout({
             </aside>
 
             {/* Main content area */}
-            <main className="flex flex-1 flex-col overflow-hidden bg-[var(--color-bg-secondary)] p-4">
+            <main className="flex flex-1 flex-col overflow-hidden">
               <div className="flex flex-1 flex-col overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] shadow-[var(--shadow-xs)]">
                 {children}
               </div>

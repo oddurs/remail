@@ -1,3 +1,5 @@
+import { MdArrowBack } from "react-icons/md";
+import { getLabelIcon } from "@/components/mail/create-label-modal";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { notFound } from "next/navigation";
@@ -63,7 +65,7 @@ async function getThread(threadId: string) {
     .select(
       `
       gmail_labels (
-        id, name, color, type
+        id, name, color, icon, type
       )
     `,
     )
@@ -85,7 +87,7 @@ async function getThread(threadId: string) {
 
   const uniqueLabels = new Map<
     string,
-    { id: string; name: string; color: string | null; type: string }
+    { id: string; name: string; color: string | null; icon: string | null; type: string }
   >();
   threadLabels?.forEach((tl) => {
     const label = tl.gmail_labels;
@@ -97,7 +99,7 @@ async function getThread(threadId: string) {
   // Fetch all user labels for label picker
   const { data: allUserLabels } = await supabase
     .from("gmail_labels")
-    .select("id, name, color")
+    .select("id, name, color, icon")
     .eq("session_id", sessionId)
     .eq("type", "user")
     .order("position");
@@ -127,24 +129,13 @@ export default async function ThreadPage({
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex shrink-0 items-center gap-1 border-b border-[var(--color-border-subtle)] px-4 py-2">
+      <div className="flex shrink-0 items-center gap-1.5 border-b border-[var(--color-border-subtle)] px-4 py-2">
         <Link
           href="/"
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+          className="mr-1 rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
           aria-label="Back to inbox"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <MdArrowBack className="size-[18px]" />
         </Link>
 
         <ThreadToolbarActions threadId={thread.id} />
@@ -165,18 +156,22 @@ export default async function ThreadPage({
         </h1>
         {labels.length > 0 && (
           <div className="mt-2 flex gap-1.5">
-            {labels.map((label) => (
-              <span
-                key={label.id}
-                className="rounded-[var(--radius-xs)] px-2 py-0.5 text-xs font-medium"
-                style={{
-                  backgroundColor: (label.color ?? "#666") + "20",
-                  color: label.color ?? "#666",
-                }}
-              >
-                {label.name}
-              </span>
-            ))}
+            {labels.map((label) => {
+              const LIcon = getLabelIcon(label.icon);
+              return (
+                <span
+                  key={label.id}
+                  className="inline-flex items-center gap-0.5 rounded-[var(--radius-xs)] px-2 py-0.5 text-xs font-medium"
+                  style={{
+                    backgroundColor: (label.color ?? "#666") + "20",
+                    color: label.color ?? "#666",
+                  }}
+                >
+                  {LIcon && <LIcon className="size-3" />}
+                  {label.name}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>

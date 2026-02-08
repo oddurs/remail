@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MdAutoAwesome, MdExpandMore } from "react-icons/md";
 
 interface ThreadSummaryProps {
   summary: string;
@@ -24,37 +25,11 @@ export function ThreadSummary({ summary }: ThreadSummaryProps) {
         className="flex w-full items-center gap-2 px-4 py-3 text-left"
       >
         {/* Sparkle icon */}
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--color-accent-primary)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0"
-        >
-          <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z" />
-        </svg>
+        <MdAutoAwesome className="size-4 shrink-0 text-[var(--color-accent-primary)]" />
         <span className="text-xs font-medium text-[var(--color-accent-primary)]">
           AI Summary
         </span>
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={`ml-auto shrink-0 text-[var(--color-text-tertiary)] transition-transform duration-200 ${
-            isExpanded ? "rotate-180" : ""
-          }`}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <MdExpandMore className={`size-3.5 ml-auto shrink-0 text-[var(--color-text-tertiary)] transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
       </button>
 
       <AnimatePresence initial={false}>

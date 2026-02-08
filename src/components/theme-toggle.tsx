@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Monitor, Sun, Moon } from "lucide-react";
+import { MdDesktopWindows, MdLightMode, MdDarkMode } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -73,19 +73,19 @@ export function ThemeToggle() {
             className="relative rounded-full text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
             aria-label={`Theme: ${mode}. Click to switch.`}
           >
-            <Monitor
+            <MdDesktopWindows
               className={cn(
                 "!size-5 absolute transition-all duration-200",
                 mode === "system" ? "scale-100 opacity-100" : "scale-75 opacity-0"
               )}
             />
-            <Sun
+            <MdLightMode
               className={cn(
                 "!size-5 absolute transition-all duration-200",
                 mode === "light" ? "scale-100 opacity-100" : "scale-75 opacity-0"
               )}
             />
-            <Moon
+            <MdDarkMode
               className={cn(
                 "!size-5 absolute transition-all duration-200",
                 mode === "dark" ? "scale-100 opacity-100" : "scale-75 opacity-0"

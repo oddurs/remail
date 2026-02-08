@@ -1,3 +1,4 @@
+import { MdInbox, MdGroup, MdLocalOffer, MdInfo, MdForum, MdMailOutline } from "react-icons/md";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
@@ -39,6 +40,7 @@ async function getInboxEmails(category: string = "primary") {
           id,
           name,
           color,
+          icon,
           type
         )
       )
@@ -48,9 +50,10 @@ async function getInboxEmails(category: string = "primary") {
     .eq("is_trash", false)
     .eq("is_spam", false)
     .eq("is_archived", false)
+    .eq("is_draft", false)
     .eq("category", category)
     .order("sent_at", { ascending: false })
-    .limit(50);
+    .limit(200);
 
   return emails ?? [];
 }
@@ -105,6 +108,16 @@ export default async function InboxPage({
     return true;
   });
 
+  // Build a map of thread_id -> first non-self contact for sender display
+  // When the latest email is from self (a reply), show the other participant instead
+  const threadSenderOverride = new Map<string, { name: string; avatar_url: string | null }>();
+  for (const email of emails) {
+    const contact = email.gmail_contacts;
+    if (contact && !contact.is_self && !threadSenderOverride.has(email.thread_id)) {
+      threadSenderOverride.set(email.thread_id, { name: contact.name, avatar_url: contact.avatar_url });
+    }
+  }
+
   const totalCount = threadEmails.length;
 
   return (
@@ -117,10 +130,7 @@ export default async function InboxPage({
           active={activeCategory === "primary"}
           count={categoryCounts.primary}
           icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-              <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-            </svg>
+            <MdInbox className="size-[18px]" />
           }
         />
         <CategoryTab
@@ -129,12 +139,7 @@ export default async function InboxPage({
           active={activeCategory === "social"}
           count={categoryCounts.social}
           icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+            <MdGroup className="size-[18px]" />
           }
         />
         <CategoryTab
@@ -143,10 +148,7 @@ export default async function InboxPage({
           active={activeCategory === "promotions"}
           count={categoryCounts.promotions}
           icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-              <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
-            </svg>
+            <MdLocalOffer className="size-[18px]" />
           }
         />
         <CategoryTab
@@ -155,11 +157,7 @@ export default async function InboxPage({
           active={activeCategory === "updates"}
           count={categoryCounts.updates}
           icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
-            </svg>
+            <MdInfo className="size-[18px]" />
           }
         />
         <CategoryTab
@@ -168,9 +166,7 @@ export default async function InboxPage({
           active={activeCategory === "forums"}
           count={categoryCounts.forums}
           icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
-            </svg>
+            <MdForum className="size-[18px]" />
           }
         />
       </div>
@@ -183,20 +179,7 @@ export default async function InboxPage({
         <div className="flex flex-1 items-center justify-center py-20">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)]">
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-[var(--color-text-tertiary)]"
-              >
-                <rect width="20" height="16" x="2" y="4" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
+              <MdMailOutline className="size-7 text-[var(--color-text-tertiary)]" />
             </div>
             <p className="text-sm font-medium text-[var(--color-text-secondary)]">
               No conversations
@@ -209,13 +192,12 @@ export default async function InboxPage({
           </div>
         </div>
       ) : (
-        <AnimatedList>
-          <div className="divide-y divide-[var(--color-border-subtle)]">
+        <AnimatedList className="divide-y divide-[var(--color-border-default)] bg-[var(--color-bg-secondary)]/50 shadow-[inset_0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.15)]">
             {threadEmails.map((email) => {
               const contact = email.gmail_contacts;
-              const senderName = contact?.is_self
-                ? "Me"
-                : (contact?.name ?? "Unknown");
+              const override = contact?.is_self ? threadSenderOverride.get(email.thread_id) : null;
+              const senderName = override?.name ?? (contact?.is_self ? "Me" : (contact?.name ?? "Unknown"));
+              const senderAvatar = override?.avatar_url ?? contact?.avatar_url;
               const userLabels =
                 email.gmail_email_labels
                   ?.map((el) => el.gmail_labels)
@@ -230,7 +212,7 @@ export default async function InboxPage({
                     emailId={email.id}
                     threadId={email.thread_id}
                     sender={senderName}
-                    senderAvatar={contact?.avatar_url}
+                    senderAvatar={senderAvatar}
                     subject={email.subject}
                     snippet={email.snippet}
                     time={formatRelativeDate(new Date(email.sent_at))}
@@ -241,13 +223,13 @@ export default async function InboxPage({
                     labels={userLabels.map((l) => ({
                       name: l.name,
                       color: l.color ?? "#666",
+                      icon: l.icon,
                     }))}
                     priorityScore={email.priority_score}
                   />
                 </AnimatedRow>
               );
             })}
-          </div>
         </AnimatedList>
       )}
     </div>

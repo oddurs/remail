@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
-import { motion } from "framer-motion";
+import { useState, useTransition } from "react";
 import { snoozeEmail } from "@/lib/actions/email";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
+import { MdEvent } from "react-icons/md";
 
 function getSnoozePresets() {
   const now = new Date();
@@ -65,19 +65,8 @@ export function SnoozePicker({
   const [customTime, setCustomTime] = useState("08:00");
   const [isPending, startTransition] = useTransition();
   const { showToast } = useToast();
-  const ref = useRef<HTMLDivElement>(null);
 
   const presets = getSnoozePresets();
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
 
   const handleSnooze = (date: Date) => {
     startTransition(async () => {
@@ -99,20 +88,7 @@ export function SnoozePicker({
   };
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: -4, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -4, scale: 0.98 }}
-      transition={{ duration: 0.15 }}
-      className="absolute right-0 top-full z-[var(--z-dropdown)] mt-1 w-64 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
-      role="menu"
-      aria-label="Snooze options"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    >
+    <div className="py-1" role="menu" aria-label="Snooze options">
       <div className="px-3 py-2 text-xs font-medium text-[var(--color-text-tertiary)]">
         Snooze until...
       </div>
@@ -138,10 +114,7 @@ export function SnoozePicker({
           role="menuitem"
           className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
-          </svg>
+          <MdEvent className="size-3.5" />
           Pick date & time
         </button>
       ) : (
@@ -181,6 +154,6 @@ export function SnoozePicker({
           </button>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -3,12 +3,12 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { staggerContainer, staggerItem, DURATION, EASE } from "@/lib/animations";
 
-export function AnimatedList({ children }: { children: React.ReactNode }) {
+export function AnimatedList({ children, className }: { children: React.ReactNode; className?: string }) {
   const reduce = useReducedMotion();
-  if (reduce) return <>{children}</>;
+  if (reduce) return <div className={className}>{children}</div>;
 
   return (
-    <motion.div variants={staggerContainer} initial="initial" animate="animate">
+    <motion.div className={className} variants={staggerContainer} initial="initial" animate="animate">
       {children}
     </motion.div>
   );

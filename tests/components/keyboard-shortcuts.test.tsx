@@ -57,13 +57,14 @@ describe("KeyboardShortcuts", () => {
   });
 
   it("'?' key opens help dialog", () => {
-    const { container } = render(
+    render(
       <Wrapper>
         <KeyboardShortcuts />
       </Wrapper>,
     );
     fireKey("?");
-    expect(container.querySelector('[role="dialog"]')).toBeInTheDocument();
+    // Radix Dialog renders in a portal, so query document.body
+    expect(document.body.querySelector('[role="dialog"]')).toBeInTheDocument();
   });
 
   it("'/' key focuses search input", () => {

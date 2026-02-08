@@ -24,6 +24,7 @@ interface EmailData {
       id: string;
       name: string;
       color: string | null;
+      icon: string | null;
       type: string;
     } | null;
   }> | null;
@@ -61,7 +62,7 @@ export function EmailList({
   }
 
   return (
-    <div className="divide-y divide-[var(--color-border-subtle)]">
+    <div className="divide-y divide-[var(--color-border-default)]">
       {emails.map((email) => {
         const contact = email.gmail_contacts;
         const senderName = contact?.is_self
@@ -92,6 +93,7 @@ export function EmailList({
             labels={userLabels.map((l) => ({
               name: l.name,
               color: l.color ?? "#666",
+              icon: l.icon,
             }))}
             priorityScore={email.priority_score}
           />

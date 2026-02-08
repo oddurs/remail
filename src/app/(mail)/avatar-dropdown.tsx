@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Settings } from "lucide-react";
+import { MdExpandMore, MdSettings } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,7 +43,7 @@ export function AvatarDropdown({ name, email, avatarUrl }: AvatarDropdownProps) 
             <span className="text-xs font-medium text-[var(--color-text-primary)]">{name}</span>
             <span className="text-[11px] text-[var(--color-text-tertiary)]">{email}</span>
           </div>
-          <ChevronDown className="size-3.5 shrink-0 text-[var(--color-text-tertiary)]" />
+          <MdExpandMore className="size-3.5 shrink-0 text-[var(--color-text-tertiary)]" />
         </Button>
       </DropdownMenuTrigger>
 
@@ -79,7 +79,7 @@ export function AvatarDropdown({ name, email, avatarUrl }: AvatarDropdownProps) 
         {/* Actions */}
         <div className="p-2">
           <DropdownMenuItem className="gap-3 rounded-xl px-4 py-2.5 text-sm text-[var(--color-text-secondary)] focus:bg-[var(--color-bg-hover)] cursor-pointer">
-            <Settings className="size-[18px]" />
+            <MdSettings className="size-[18px]" />
             Manage account
           </DropdownMenuItem>
         </div>

@@ -37,7 +37,7 @@ export async function searchEmails(query: string) {
       ),
       gmail_email_labels (
         gmail_labels (
-          id, name, color, type
+          id, name, color, icon, type
         )
       )
     `,

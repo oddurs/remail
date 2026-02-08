@@ -13,6 +13,8 @@ import {
 import { useToast } from "@/components/ui/toast";
 import { useSelection } from "@/components/mail/selection-provider";
 import { SnoozePicker } from "@/components/mail/snooze-picker";
+import { MdCheckBox, MdCheckBoxOutlineBlank, MdStar, MdStarBorder, MdLabelImportant, MdArchive, MdDelete, MdMarkEmailRead, MdMarkEmailUnread, MdSchedule } from "react-icons/md";
+import { getLabelIcon } from "@/components/mail/create-label-modal";
 
 export function EmailRow({
   emailId,
@@ -40,7 +42,7 @@ export function EmailRow({
   starred?: boolean;
   important?: boolean;
   isDraft?: boolean;
-  labels?: Array<{ name: string; color: string }>;
+  labels?: Array<{ name: string; color: string; icon?: string | null }>;
   priorityScore?: number;
 }) {
   const [isStarPending, startStarTransition] = useTransition();
@@ -103,11 +105,11 @@ export function EmailRow({
       data-thread-id={threadId}
       data-starred={starred ? "true" : undefined}
       className={`
-        group relative flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-[var(--transition-fast)]
-        ${selected ? "bg-[var(--color-accent-subtle)]" : unread ? "bg-[var(--color-unread-bg)]" : "bg-[var(--color-read-bg)]"}
-        hover:z-[1] hover:shadow-[var(--shadow-sm)]
+        group relative grid cursor-pointer grid-cols-[1.5rem_1.5rem_1rem_11rem_1fr_5rem] items-center gap-x-2 px-4 py-2.5 transition-[var(--transition-fast)]
+        ${selected ? "bg-[var(--color-accent-subtle)]" : unread ? "bg-blue-50/40 dark:bg-blue-950/20" : "bg-transparent"}
+        hover:z-[1] hover:bg-[var(--color-bg-hover)] hover:shadow-[var(--shadow-sm)]
         ${isActionPending ? "opacity-50" : ""}
-        ${priorityScore != null && priorityScore >= 0.8 ? "border-l-2 border-l-[var(--color-accent-primary)]" : ""}
+        ${unread ? "border-l-[3px] border-l-blue-600 dark:border-l-blue-400" : "border-l-[3px] border-l-transparent"}
       `}
     >
       {/* Checkbox */}
@@ -117,38 +119,15 @@ export function EmailRow({
           e.stopPropagation();
           toggle(emailId);
         }}
-        className={`shrink-0 rounded-[var(--radius-xs)] p-1 hover:bg-[var(--color-bg-hover)] ${
+        className={`rounded-[var(--radius-xs)] p-1 hover:bg-[var(--color-bg-hover)] ${
           selected ? "text-[var(--color-accent-primary)]" : "text-[var(--color-text-tertiary)]"
         }`}
         aria-label={selected ? "Deselect" : "Select"}
       >
         {selected ? (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" fill="currentColor" />
-            <path d="m9 12 2 2 4-4" stroke="var(--color-bg-primary)" strokeWidth="2" />
-          </svg>
+          <MdCheckBox className="size-4" />
         ) : (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-          </svg>
+          <MdCheckBoxOutlineBlank className="size-4" />
         )}
       </button>
 
@@ -158,112 +137,89 @@ export function EmailRow({
         disabled={isStarPending}
         whileTap={{ scale: 1.3 }}
         transition={{ type: "spring", stiffness: 500, damping: 15 }}
-        className={`shrink-0 rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
+        className={`rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
           starred
             ? "text-[var(--color-star)]"
             : "text-[var(--color-text-tertiary)]"
         }`}
         aria-label={starred ? "Unstar" : "Star"}
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill={starred ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
+        {starred ? <MdStar className="size-4" /> : <MdStarBorder className="size-4" />}
       </motion.button>
 
-      {/* Important marker */}
-      {important && (
-        <span className="shrink-0 text-[var(--color-important)]">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            stroke="none"
-          >
-            <path d="M4 2l8 5 8-5v14l-8 5-8-5z" />
-          </svg>
-        </span>
-      )}
+      {/* Important marker — always rendered to maintain grid alignment */}
+      <span className="flex items-center justify-center text-[var(--color-important)]">
+        {important && <MdLabelImportant className="size-3.5" />}
+      </span>
 
-      {/* Content */}
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        {/* Sender */}
+      {/* Sender */}
+      <span
+        className={`flex items-center gap-2 truncate text-[13px] ${
+          unread
+            ? "font-semibold text-[var(--color-text-primary)]"
+            : "font-medium text-[var(--color-text-secondary)]"
+        }`}
+      >
+        {senderAvatar ? (
+          <img src={senderAvatar} alt="" className="h-6 w-6 shrink-0 rounded-[var(--radius-full)] object-cover ring-1 ring-[var(--color-border-subtle)]" />
+        ) : (
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-xs font-medium text-[var(--color-text-secondary)] ring-1 ring-[var(--color-border-subtle)]">
+            {sender.charAt(0).toUpperCase()}
+          </span>
+        )}
+        {isDraft ? (
+          <span className="text-[var(--color-error)]">Draft</span>
+        ) : (
+          <span className="truncate">{sender}</span>
+        )}
+      </span>
+
+      {/* Subject + labels + snippet */}
+      <div className="flex min-w-0 items-baseline gap-1">
         <span
-          className={`flex w-52 shrink-0 items-center gap-2 truncate text-sm ${
+          className={`shrink-0 text-[13px] ${
             unread
               ? "font-semibold text-[var(--color-text-primary)]"
               : "text-[var(--color-text-secondary)]"
           }`}
         >
-          {senderAvatar ? (
-            <img src={senderAvatar} alt="" className="h-6 w-6 shrink-0 rounded-[var(--radius-full)] object-cover" />
-          ) : (
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-xs font-medium text-[var(--color-text-secondary)]">
-              {sender.charAt(0).toUpperCase()}
-            </span>
-          )}
-          {isDraft ? (
-            <span className="text-[var(--color-error)]">Draft</span>
-          ) : (
-            <span className="truncate">{sender}</span>
-          )}
+          {subject}
         </span>
-
-        {/* Subject + snippet */}
-        <div className="flex min-w-0 flex-1 items-baseline gap-1">
-          <span
-            className={`shrink-0 text-sm ${
-              unread
-                ? "font-semibold text-[var(--color-text-primary)]"
-                : "text-[var(--color-text-secondary)]"
-            }`}
-          >
-            {subject}
-          </span>
-          <span className="truncate text-sm text-[var(--color-text-tertiary)]">
-            {" "}
-            &mdash; {snippet}
-          </span>
-        </div>
-
-        {/* Labels */}
         {labels.length > 0 && (
-          <div className="flex shrink-0 gap-1">
-            {labels.map((l) => (
-              <span
-                key={l.name}
-                className="rounded-[var(--radius-xs)] px-1.5 py-0.5 text-[11px] font-medium"
-                style={{
-                  backgroundColor: l.color + "20",
-                  color: l.color,
-                }}
-              >
-                {l.name}
-              </span>
-            ))}
-          </div>
+          <span className="flex shrink-0 items-center gap-1">
+            {labels.map((l) => {
+              const LIcon = getLabelIcon(l.icon ?? null);
+              return (
+                <span
+                  key={l.name}
+                  className="inline-flex items-center gap-0.5 rounded-[var(--radius-xs)] px-1.5 py-0.5 text-[11px] font-medium"
+                  style={{
+                    backgroundColor: l.color + "20",
+                    color: l.color,
+                  }}
+                >
+                  {LIcon && <LIcon className="size-3" />}
+                  {l.name}
+                </span>
+              );
+            })}
+          </span>
         )}
-
-        {/* Time — visible by default, hidden on hover */}
-        <span
-          className={`shrink-0 text-xs tabular-nums group-hover:invisible ${
-            unread
-              ? "font-semibold text-[var(--color-text-primary)]"
-              : "text-[var(--color-text-tertiary)]"
-          }`}
-        >
-          {time}
+        <span className="truncate text-[13px] text-[var(--color-text-tertiary)] opacity-75">
+          &mdash; {snippet}
         </span>
       </div>
+
+      {/* Time — right-aligned, hidden on hover */}
+      <span
+        className={`text-right text-xs tabular-nums group-hover:invisible ${
+          unread
+            ? "font-semibold text-[var(--color-text-primary)]"
+            : "text-[var(--color-text-tertiary)]"
+        }`}
+      >
+        {time}
+      </span>
 
       {/* Hover actions — appear on hover, positioned over the timestamp */}
       <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-1.5 shadow-[var(--shadow-sm)] opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 transition-opacity duration-150">
@@ -275,20 +231,7 @@ export function EmailRow({
           title="Archive"
           aria-label="Archive"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="20" height="5" x="2" y="3" rx="1" />
-            <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
-            <path d="M10 12h4" />
-          </svg>
+          <MdArchive className="size-4" />
         </button>
 
         {/* Delete */}
@@ -299,20 +242,7 @@ export function EmailRow({
           title="Delete"
           aria-label="Delete"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 6h18" />
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-          </svg>
+          <MdDelete className="size-4" />
         </button>
 
         {/* Mark read/unread */}
@@ -323,36 +253,7 @@ export function EmailRow({
           title={unread ? "Mark as read" : "Mark as unread"}
           aria-label={unread ? "Mark as read" : "Mark as unread"}
         >
-          {unread ? (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8" />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              <path d="m16 19 2 2 4-4" />
-            </svg>
-          ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect width="20" height="16" x="2" y="4" rx="2" />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-            </svg>
-          )}
+          {unread ? <MdMarkEmailRead className="size-4" /> : <MdMarkEmailUnread className="size-4" />}
         </button>
 
         {/* Snooze */}
@@ -367,19 +268,7 @@ export function EmailRow({
             title="Snooze"
             aria-label="Snooze"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
+            <MdSchedule className="size-4" />
           </button>
           <AnimatePresence>
             {showSnooze && (

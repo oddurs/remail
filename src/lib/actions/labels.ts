@@ -18,7 +18,7 @@ export async function getLabels() {
 
   const { data: labels } = await supabase
     .from("gmail_labels")
-    .select("id, name, color, type, position")
+    .select("id, name, color, icon, type, position")
     .eq("session_id", sessionId)
     .eq("type", "user")
     .order("position");
@@ -28,8 +28,8 @@ export async function getLabels() {
 
 /* ─── Create Label ──────────────────────────────────────────────────────────── */
 
-export async function createLabel(name: string, color: string) {
-  createLabelSchema.parse({ name, color });
+export async function createLabel(name: string, color: string, icon?: string) {
+  createLabelSchema.parse({ name, color, icon });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -50,12 +50,13 @@ export async function createLabel(name: string, color: string) {
       session_id: sessionId,
       name,
       color,
+      icon: icon ?? null,
       type: "user",
       position: nextPosition,
       show_in_list: true,
       show_in_message: true,
     })
-    .select("id, name, color")
+    .select("id, name, color, icon")
     .single();
 
   if (error) throw new Error(`Failed to create label: ${error.message}`);
@@ -67,7 +68,7 @@ export async function createLabel(name: string, color: string) {
 
 export async function updateLabel(
   labelId: string,
-  updates: { name?: string; color?: string },
+  updates: { name?: string; color?: string; icon?: string },
 ) {
   updateLabelSchema.parse({ labelId, ...updates });
   const sessionId = await requireSessionId();

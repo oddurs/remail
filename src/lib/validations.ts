@@ -82,12 +82,14 @@ export const threadReadStatusSchema = z.object({
 export const createLabelSchema = z.object({
   name: z.string().min(1).max(100),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  icon: z.string().max(50).optional(),
 });
 
 export const updateLabelSchema = z.object({
   labelId: uuidSchema,
   name: z.string().min(1).max(100).optional(),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  icon: z.string().max(50).optional(),
 });
 
 export const deleteLabelSchema = z.object({

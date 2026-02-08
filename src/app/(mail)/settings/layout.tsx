@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MdArrowBack } from "react-icons/md";
 
 const settingsNav = [
   { label: "General", href: "/settings" },
@@ -15,40 +16,30 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen flex-col bg-[var(--color-bg-primary)]">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <header className="flex h-[var(--topbar-height)] shrink-0 items-center gap-4 border-b border-[var(--color-border-subtle)] px-6">
+      <div className="flex shrink-0 items-center gap-2 border-b border-[var(--color-border-subtle)] px-4 py-2">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
+          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+          aria-label="Back to inbox"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <MdArrowBack className="size-[18px]" />
         </Link>
         <h1 className="text-lg font-medium text-[var(--color-text-primary)]">
           Settings
         </h1>
-      </header>
+      </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Settings sidebar */}
-        <nav className="w-52 shrink-0 border-r border-[var(--color-border-subtle)] px-2 py-3">
+        <nav className="w-48 shrink-0 border-r border-[var(--color-border-subtle)] px-2 py-3">
           <div className="space-y-0.5">
             {settingsNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block rounded-[var(--radius-full)] px-3 py-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
+                className="block rounded-[var(--radius-sm)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
               >
                 {item.label}
               </Link>
@@ -57,9 +48,9 @@ export default function SettingsLayout({
         </nav>
 
         {/* Settings content */}
-        <main className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {children}
-        </main>
+        </div>
       </div>
     </div>
   );

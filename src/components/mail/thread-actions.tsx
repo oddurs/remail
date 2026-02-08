@@ -2,7 +2,6 @@
 
 import { useCompose } from "@/components/mail/compose-provider";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   toggleStar,
   archiveThread,
@@ -12,10 +11,24 @@ import {
   markThreadReadStatus,
 } from "@/lib/actions/email";
 import { useToast } from "@/components/ui/toast";
-import { useState, useRef, useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { SnoozePicker } from "@/components/mail/snooze-picker";
 import { LabelPicker } from "@/components/mail/label-picker";
 import { escapeHtml } from "@/lib/utils";
+import { MdArchive, MdDelete, MdMarkEmailUnread, MdStar, MdStarBorder, MdSchedule, MdLabel, MdReply, MdReplyAll, MdForward, MdMoreVert, MdAccessTime, MdAddTask, MdEvent, MdFilterList, MdVolumeOff, MdChevronRight } from "react-icons/md";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 /* ─── Thread Toolbar Actions ─────────────────────────────────────────────────── */
 
@@ -60,73 +73,20 @@ export function ThreadToolbarActions({ threadId }: { threadId: string }) {
   };
 
   return (
-    <>
-      <button
-        onClick={handleArchive}
-        disabled={isPending}
-        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
-        title="Archive"
-        aria-label="Archive"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect width="20" height="5" x="2" y="3" rx="1" />
-          <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
-          <path d="M10 12h4" />
-        </svg>
-      </button>
-      <button
-        onClick={handleTrash}
-        disabled={isPending}
-        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
-        title="Delete"
-        aria-label="Delete"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 6h18" />
-          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        </svg>
-      </button>
-      <button
-        onClick={handleMarkUnread}
-        disabled={isPending}
-        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
-        title="Mark unread"
-        aria-label="Mark unread"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect width="20" height="16" x="2" y="4" rx="2" />
-          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-        </svg>
-      </button>
-    </>
+    <div className="flex items-center gap-1">
+      <Button variant="outline" size="sm" onClick={handleArchive} disabled={isPending}>
+        <MdArchive className="size-3.5" />
+        Archive
+      </Button>
+      <Button variant="outline" size="sm" onClick={handleTrash} disabled={isPending}>
+        <MdDelete className="size-3.5" />
+        Delete
+      </Button>
+      <Button variant="outline" size="sm" onClick={handleMarkUnread} disabled={isPending}>
+        <MdMarkEmailUnread className="size-3.5" />
+        Unread
+      </Button>
+    </div>
   );
 }
 
@@ -142,33 +102,20 @@ export function StarButton({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <motion.button
+    <Button
+      variant="ghost"
+      size="icon-xs"
       onClick={() => {
         startTransition(async () => {
           await toggleStar(emailId, !starred);
         });
       }}
       disabled={isPending}
-      whileTap={{ scale: 1.3 }}
-      transition={{ type: "spring", stiffness: 500, damping: 15 }}
-      className={`rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
-        starred
-          ? "text-[var(--color-star)]"
-          : "text-[var(--color-text-tertiary)]"
-      }`}
+      className={starred ? "text-[var(--color-star)] hover:text-[var(--color-star)]" : "text-[var(--color-text-tertiary)]"}
       aria-label={starred ? "Unstar" : "Star"}
     >
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill={starred ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    </motion.button>
+      {starred ? <MdStar className="size-3.5" /> : <MdStarBorder className="size-3.5" />}
+    </Button>
   );
 }
 
@@ -178,36 +125,20 @@ export function ThreadSnoozeButton({ emailId }: { emailId: string }) {
   const [showSnooze, setShowSnooze] = useState(false);
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setShowSnooze((v) => !v)}
-        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-        title="Snooze"
-        aria-label="Snooze"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-      </button>
-      <AnimatePresence>
-        {showSnooze && (
-          <SnoozePicker
-            emailId={emailId}
-            onClose={() => setShowSnooze(false)}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+    <Popover open={showSnooze} onOpenChange={setShowSnooze}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm">
+          <MdSchedule className="size-3.5" />
+          Snooze
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-0 border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-lg)]">
+        <SnoozePicker
+          emailId={emailId}
+          onClose={() => setShowSnooze(false)}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -220,43 +151,27 @@ export function ThreadLabelButton({
 }: {
   emailIds: string[];
   currentLabelIds: string[];
-  labels: Array<{ id: string; name: string; color: string | null }>;
+  labels: Array<{ id: string; name: string; color: string | null; icon?: string | null }>;
 }) {
   const [showPicker, setShowPicker] = useState(false);
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setShowPicker((v) => !v)}
-        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-        title="Labels"
-        aria-label="Labels"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-          <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
-        </svg>
-      </button>
-      <AnimatePresence>
-        {showPicker && (
-          <LabelPicker
-            emailIds={emailIds}
-            currentLabelIds={currentLabelIds}
-            labels={labels}
-            onClose={() => setShowPicker(false)}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+    <Popover open={showPicker} onOpenChange={setShowPicker}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm">
+          <MdLabel className="size-3.5" />
+          Label
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-56 p-0 border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-lg)]">
+        <LabelPicker
+          emailIds={emailIds}
+          currentLabelIds={currentLabelIds}
+          labels={labels}
+          onClose={() => setShowPicker(false)}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -300,27 +215,10 @@ export function ReplyButton({
   };
 
   return (
-    <button
-      onClick={handleReply}
-      className="rounded-[var(--radius-full)] border border-[var(--color-border-default)] px-5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
-    >
-      <span className="flex items-center gap-2">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="9 17 4 12 9 7" />
-          <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-        </svg>
-        Reply
-      </span>
-    </button>
+    <Button variant="outline" className="rounded-full" onClick={handleReply}>
+      <MdReply className="size-3.5" />
+      Reply
+    </Button>
   );
 }
 
@@ -356,28 +254,10 @@ export function ReplyAllButton({
   };
 
   return (
-    <button
-      onClick={handleReplyAll}
-      className="rounded-[var(--radius-full)] border border-[var(--color-border-default)] px-5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
-    >
-      <span className="flex items-center gap-2">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="7 17 2 12 7 7" />
-          <polyline points="12 17 7 12 12 7" />
-          <path d="M22 18v-2a4 4 0 0 0-4-4H7" />
-        </svg>
-        Reply all
-      </span>
-    </button>
+    <Button variant="outline" className="rounded-full" onClick={handleReplyAll}>
+      <MdReplyAll className="size-3.5" />
+      Reply all
+    </Button>
   );
 }
 
@@ -413,223 +293,83 @@ export function ForwardButton({
   };
 
   return (
-    <button
-      onClick={handleForward}
-      className="rounded-[var(--radius-full)] border border-[var(--color-border-default)] px-5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
-    >
-      <span className="flex items-center gap-2">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="15 17 20 12 15 7" />
-          <path d="M4 18v-2a4 4 0 0 1 4-4h12" />
-        </svg>
-        Forward
-      </span>
-    </button>
+    <Button variant="outline" className="rounded-full" onClick={handleForward}>
+      <MdForward className="size-3.5" />
+      Forward
+    </Button>
   );
 }
 
-/* ─── More Menu (shared items) ──────────────────────────────────────────────── */
+/* ─── More Menu Content (shared items) ──────────────────────────────────── */
 
-function MoreMenuDropdown({ onClose }: { onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
-
-  const items = [
-    {
-      label: "Snooze",
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-      ),
-    },
-    {
-      label: "Add to Tasks",
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-          <path d="m9 12 2 2 4-4" />
-        </svg>
-      ),
-    },
-    {
-      label: "Create event",
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-          <path d="M16 2v4M8 2v4M3 10h18" />
-        </svg>
-      ),
-    },
-    {
-      label: "Forward all",
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 17 20 12 15 7" />
-          <path d="M4 18v-2a4 4 0 0 1 4-4h12" />
-        </svg>
-      ),
-    },
-    { separator: true } as const,
-    {
-      label: "Label as",
-      hasSubmenu: true,
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-          <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
-        </svg>
-      ),
-    },
-    {
-      label: "Filter messages like these",
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="4" x2="20" y1="6" y2="6" />
-          <line x1="7" x2="17" y1="12" y2="12" />
-          <line x1="10" x2="14" y1="18" y2="18" />
-        </svg>
-      ),
-    },
-    {
-      label: "Mute",
-      icon: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 5L6 9H2v6h4l5 4V5z" />
-          <line x1="23" x2="17" y1="9" y2="15" />
-          <line x1="17" x2="23" y1="9" y2="15" />
-        </svg>
-      ),
-    },
-  ];
-
+function MoreMenuContent() {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: -4, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -4, scale: 0.98 }}
-      transition={{ duration: 0.15 }}
-      className="absolute right-0 top-full z-[var(--z-dropdown)] mt-1 w-56 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
-      role="menu"
-      aria-label="More options"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {items.map((item, i) =>
-        "separator" in item ? (
-          <div
-            key={`sep-${i}`}
-            className="mx-3 my-1 border-t border-[var(--color-border-subtle)]"
-          />
-        ) : (
-          <button
-            key={item.label}
-            role="menuitem"
-            onClick={() => onClose()}
-            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]"
-          >
-            <span className="text-[var(--color-text-secondary)]">
-              {item.icon}
-            </span>
-            <span className="flex-1 text-left">{item.label}</span>
-            {"hasSubmenu" in item && (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-text-tertiary)]">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            )}
-          </button>
-        ),
-      )}
-    </motion.div>
+    <>
+      <DropdownMenuItem>
+        <MdAccessTime className="size-3.5" />
+        Snooze
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        <MdAddTask className="size-3.5" />
+        Add to Tasks
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        <MdEvent className="size-3.5" />
+        Create event
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        <MdForward className="size-3.5" />
+        Forward all
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem>
+        <MdLabel className="size-3.5" />
+        <span className="flex-1">Label as</span>
+        <MdChevronRight className="size-3 text-[var(--color-text-tertiary)]" />
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        <MdFilterList className="size-3.5" />
+        Filter messages like these
+      </DropdownMenuItem>
+      <DropdownMenuItem>
+        <MdVolumeOff className="size-3.5" />
+        Mute
+      </DropdownMenuItem>
+    </>
   );
 }
 
 /* ─── Message More Menu (per-email ⋮) ────────────────────────────────────── */
 
 export function MessageMoreMenu() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <div className="relative">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((v) => !v);
-        }}
-        className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
-        title="More"
-        aria-label="More"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <circle cx="12" cy="12" r="1" />
-          <circle cx="12" cy="5" r="1" />
-          <circle cx="12" cy="19" r="1" />
-        </svg>
-      </button>
-      <AnimatePresence>
-        {open && <MoreMenuDropdown onClose={() => setOpen(false)} />}
-      </AnimatePresence>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon-xs" onClick={(e) => e.stopPropagation()} aria-label="More">
+          <MdMoreVert className="size-3.5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <MoreMenuContent />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 /* ─── Toolbar More Menu (thread toolbar ⋮) ──────────────────────────────── */
 
 export function ToolbarMoreMenu() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-        title="More"
-        aria-label="More"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="1" />
-          <circle cx="12" cy="5" r="1" />
-          <circle cx="12" cy="19" r="1" />
-        </svg>
-      </button>
-      <AnimatePresence>
-        {open && <MoreMenuDropdown onClose={() => setOpen(false)} />}
-      </AnimatePresence>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm">
+          <MdMoreVert className="size-3.5" />
+          More
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <MoreMenuContent />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

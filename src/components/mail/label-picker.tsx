@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
-import { motion } from "framer-motion";
+import { useState, useTransition } from "react";
 import { assignLabels } from "@/lib/actions/labels";
 import { useToast } from "@/components/ui/toast";
+import { MdCheck, MdLabel } from "react-icons/md";
+import { getLabelIcon } from "@/components/mail/create-label-modal";
 
 interface Label {
   id: string;
   name: string;
   color: string | null;
+  icon?: string | null;
 }
 
 export function LabelPicker({
@@ -27,17 +29,6 @@ export function LabelPicker({
   );
   const [isPending, startTransition] = useTransition();
   const { showToast } = useToast();
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
 
   const handleToggle = (labelId: string) => {
     setChecked((prev) => {
@@ -70,15 +61,7 @@ export function LabelPicker({
   };
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: -4, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -4, scale: 0.98 }}
-      transition={{ duration: 0.15 }}
-      className="absolute left-0 top-full z-[var(--z-dropdown)] mt-1 w-56 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className="py-1">
       <div className="px-3 py-2 text-xs font-medium text-[var(--color-text-tertiary)]">
         Label as:
       </div>
@@ -105,24 +88,20 @@ export function LabelPicker({
                 }`}
               >
                 {checked.has(label.id) && (
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="var(--color-text-inverse)"
-                    strokeWidth="3"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <MdCheck className="size-2.5" style={{ color: "var(--color-text-inverse)" }} />
                 )}
               </span>
-              {label.color && (
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-[var(--radius-full)]"
-                  style={{ backgroundColor: label.color }}
-                />
-              )}
+              {(() => {
+                const LIcon = getLabelIcon(label.icon ?? null) ?? MdLabel;
+                return (
+                  <span
+                    className="flex size-4 shrink-0 items-center justify-center rounded-full"
+                    style={{ backgroundColor: label.color ?? "var(--color-text-tertiary)" }}
+                  >
+                    <LIcon className="size-2.5 text-white" />
+                  </span>
+                );
+              })()}
               <span className="truncate">{label.name}</span>
             </button>
           ))}
@@ -140,6 +119,6 @@ export function LabelPicker({
           {isPending ? "Applying..." : "Apply"}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

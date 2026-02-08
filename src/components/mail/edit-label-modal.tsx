@@ -1,71 +1,38 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
-import { motion } from "framer-motion";
+import { useState, useTransition } from "react";
 import { updateLabel, deleteLabel } from "@/lib/actions/labels";
 import { useToast } from "@/components/ui/toast";
-import { LABEL_COLOR_PRESETS } from "@/components/mail/create-label-modal";
+import { LABEL_COLOR_PRESETS, LABEL_ICON_PRESETS } from "@/components/mail/create-label-modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function EditLabelModal({
   label,
   onClose,
 }: {
-  label: { id: string; name: string; color: string | null };
+  label: { id: string; name: string; color: string | null; icon: string | null };
   onClose: () => void;
 }) {
   const [name, setName] = useState(label.name);
   const [color, setColor] = useState(label.color ?? LABEL_COLOR_PRESETS[5].hex);
+  const [icon, setIcon] = useState(label.icon ?? LABEL_ICON_PRESETS[23].id);
   const [showDelete, setShowDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { showToast } = useToast();
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const previousFocus = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    previousFocus.current = document.activeElement as HTMLElement;
-    inputRef.current?.focus();
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (e.key === "Tab" && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      document.body.style.overflow = prevOverflow;
-      previousFocus.current?.focus();
-    };
-  }, [onClose]);
 
   const handleSave = () => {
     if (!name.trim()) return;
-    const updates: { name?: string; color?: string } = {};
+    const updates: { name?: string; color?: string; icon?: string } = {};
     if (name.trim() !== label.name) updates.name = name.trim();
     if (color !== label.color) updates.color = color;
+    if (icon !== label.icon) updates.icon = icon;
     if (Object.keys(updates).length === 0) {
       onClose();
       return;
@@ -86,31 +53,16 @@ export function EditLabelModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Edit label"
-    >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-      />
-      <motion.div
-        ref={dialogRef}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2 }}
-        className="relative w-full max-w-sm rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-6 shadow-[var(--shadow-xl)]"
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-sm rounded-[var(--radius-lg)] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-6 shadow-[var(--shadow-xl)]"
       >
-        <h2 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
-          Edit label
-        </h2>
+        <DialogHeader>
+          <DialogTitle className="text-[var(--color-text-primary)]">
+            Edit label
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div>
@@ -120,13 +72,13 @@ export function EditLabelModal({
             >
               Name
             </label>
-            <input
-              ref={inputRef}
+            <Input
               id="edit-label-name"
               type="text"
+              autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-primary)]"
+              className="border-[var(--color-border-default)] bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] focus-visible:border-[var(--color-accent-primary)] focus-visible:ring-0"
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSave();
               }}
@@ -142,7 +94,7 @@ export function EditLabelModal({
                 <button
                   key={c.hex}
                   onClick={() => setColor(c.hex)}
-                  className={`h-7 w-7 rounded-[var(--radius-full)] transition-[var(--transition-fast)] ${
+                  className={`h-7 w-7 rounded-full transition-[var(--transition-fast)] ${
                     color === c.hex
                       ? "ring-2 ring-[var(--color-accent-primary)] ring-offset-2 ring-offset-[var(--color-bg-primary)]"
                       : "hover:scale-110"
@@ -153,54 +105,83 @@ export function EditLabelModal({
               ))}
             </div>
           </div>
+
+          <div>
+            <label className="mb-2 block text-sm text-[var(--color-text-secondary)]">
+              Icon
+            </label>
+            <div className="grid grid-cols-8 gap-1.5">
+              {LABEL_ICON_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setIcon(preset.id)}
+                  className={`flex size-8 items-center justify-center rounded-full transition-[var(--transition-fast)] ${
+                    icon === preset.id
+                      ? "ring-2 ring-[var(--color-accent-primary)] ring-offset-2 ring-offset-[var(--color-bg-primary)]"
+                      : "hover:scale-110"
+                  }`}
+                  style={{ backgroundColor: color }}
+                  aria-label={preset.name}
+                >
+                  <preset.icon className="size-4 text-white" />
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           {!showDelete ? (
-            <button
+            <Button
+              variant="link"
               onClick={() => setShowDelete(true)}
-              className="text-sm text-[var(--color-error)] hover:underline"
+              className="h-auto p-0 text-sm text-[var(--color-error)] hover:text-[var(--color-error)]"
             >
               Delete label
-            </button>
+            </Button>
           ) : (
             <div className="flex items-center gap-2">
               <span className="text-sm text-[var(--color-text-secondary)]">
                 Delete?
               </span>
-              <button
+              <Button
+                size="sm"
+                variant="destructive"
                 onClick={handleDelete}
                 disabled={isPending}
-                className="rounded-[var(--radius-sm)] bg-[var(--color-error)] px-3 py-1 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
                 Yes
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => setShowDelete(false)}
-                className="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]"
+                className="text-[var(--color-text-tertiary)]"
               >
                 No
-              </button>
+              </Button>
             </div>
           )}
 
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="ghost"
               onClick={onClose}
-              className="rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+              className="text-[var(--color-text-secondary)]"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
               disabled={isPending || !name.trim()}
-              className="rounded-[var(--radius-sm)] bg-[var(--color-accent-primary)] px-4 py-2 text-sm font-medium text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+              className="bg-[var(--color-accent-primary)] text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-hover)]"
             >
               {isPending ? "Saving..." : "Save"}
-            </button>
+            </Button>
           </div>
         </div>
-      </motion.div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

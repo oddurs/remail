@@ -48,7 +48,7 @@ export async function getEmailList(filter: EmailListFilter) {
       ),
       gmail_email_labels (
         gmail_labels (
-          id, name, color, type
+          id, name, color, icon, type
         )
       )
     `,
@@ -61,6 +61,7 @@ export async function getEmailList(filter: EmailListFilter) {
         .eq("is_trash", false)
         .eq("is_spam", false)
         .eq("is_archived", false)
+        .eq("is_draft", false)
         .eq("category", filter.category ?? "primary");
       break;
     case "starred":
@@ -106,7 +107,7 @@ export async function getEmailList(filter: EmailListFilter) {
       break;
   }
 
-  query = query.order("sent_at", { ascending: false }).limit(50);
+  query = query.order("sent_at", { ascending: false }).limit(200);
 
   const { data: emails } = await query;
 
@@ -142,7 +143,7 @@ export async function getEmailList(filter: EmailListFilter) {
         ),
         gmail_email_labels (
           gmail_labels (
-            id, name, color, type
+            id, name, color, icon, type
           )
         )
       `,
@@ -152,7 +153,7 @@ export async function getEmailList(filter: EmailListFilter) {
       .eq("is_spam", false)
       .in("id", Array.from(emailIds))
       .order("sent_at", { ascending: false })
-      .limit(50);
+      .limit(200);
 
     return filteredEmails ?? [];
   }

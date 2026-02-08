@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useTransition } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useCallback, useTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCompose } from "./compose-provider";
 import { useSelection } from "./selection-provider";
 import { useToast } from "@/components/ui/toast";
@@ -17,155 +23,61 @@ import {
 
 /* ─── Shortcuts Help Dialog ──────────────────────────────────────────────────── */
 
-function ShortcutsDialog({ onClose }: { onClose: () => void }) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const previousFocus = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    previousFocus.current = document.activeElement as HTMLElement;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-        return;
-      }
-
-      // Focus trap
-      if (e.key === "Tab" && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-
-    // Focus first focusable element
-    requestAnimationFrame(() => {
-      const first = dialogRef.current?.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-      first?.focus();
-    });
-
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      document.body.style.overflow = prevOverflow;
-      previousFocus.current?.focus();
-    };
-  }, [onClose]);
-
+function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   return (
-    <div
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Keyboard shortcuts"
-    >
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="absolute inset-0 bg-black/40"
-      />
-
-      {/* Dialog */}
-      <motion.div
-        ref={dialogRef}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2 }}
-        className="relative max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-6 shadow-[var(--shadow-xl)]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[80vh] rounded-[var(--radius-lg)] border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-0 shadow-[var(--shadow-xl)]">
+        <DialogHeader className="px-6 pt-6 pb-0">
+          <DialogTitle className="text-[var(--color-text-primary)]">
             Keyboard shortcuts
-          </h2>
-          <button
-            onClick={onClose}
-            className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
-            aria-label="Close"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="space-y-5">
-          <ShortcutSection title="Navigation">
-            <ShortcutRow keys={["g", "i"]} description="Go to Inbox" />
-            <ShortcutRow keys={["g", "s"]} description="Go to Starred" />
-            <ShortcutRow keys={["g", "t"]} description="Go to Sent" />
-            <ShortcutRow keys={["g", "d"]} description="Go to Drafts" />
-            <ShortcutRow keys={["g", "a"]} description="Go to All Mail" />
-          </ShortcutSection>
+        <ScrollArea className="max-h-[calc(80vh-5rem)] px-6 pb-6">
+          <div className="space-y-5">
+            <ShortcutSection title="Navigation">
+              <ShortcutRow keys={["g", "i"]} description="Go to Inbox" />
+              <ShortcutRow keys={["g", "s"]} description="Go to Starred" />
+              <ShortcutRow keys={["g", "t"]} description="Go to Sent" />
+              <ShortcutRow keys={["g", "d"]} description="Go to Drafts" />
+              <ShortcutRow keys={["g", "a"]} description="Go to All Mail" />
+            </ShortcutSection>
 
-          <ShortcutSection title="Email list">
-            <ShortcutRow keys={["j"]} description="Move down" />
-            <ShortcutRow keys={["k"]} description="Move up" />
-            <ShortcutRow keys={["o"]} description="Open conversation" />
-            <ShortcutRow keys={["x"]} description="Select conversation" />
-            <ShortcutRow keys={["c"]} description="Compose" />
-            <ShortcutRow keys={["/"]} description="Search" />
-            <ShortcutRow keys={["e"]} description="Archive" />
-            <ShortcutRow keys={["#"]} description="Delete" />
-            <ShortcutRow keys={["s"]} description="Star / unstar" />
-            <ShortcutRow keys={["I"]} description="Mark as read" />
-            <ShortcutRow keys={["U"]} description="Mark as unread" />
-            <ShortcutRow keys={["z"]} description="Undo" />
-          </ShortcutSection>
+            <ShortcutSection title="Email list">
+              <ShortcutRow keys={["j"]} description="Move down" />
+              <ShortcutRow keys={["k"]} description="Move up" />
+              <ShortcutRow keys={["o"]} description="Open conversation" />
+              <ShortcutRow keys={["x"]} description="Select conversation" />
+              <ShortcutRow keys={["c"]} description="Compose" />
+              <ShortcutRow keys={["/"]} description="Search" />
+              <ShortcutRow keys={["e"]} description="Archive" />
+              <ShortcutRow keys={["#"]} description="Delete" />
+              <ShortcutRow keys={["s"]} description="Star / unstar" />
+              <ShortcutRow keys={["I"]} description="Mark as read" />
+              <ShortcutRow keys={["U"]} description="Mark as unread" />
+              <ShortcutRow keys={["z"]} description="Undo" />
+            </ShortcutSection>
 
-          <ShortcutSection title="Thread view">
-            <ShortcutRow keys={["r"]} description="Reply" />
-            <ShortcutRow keys={["f"]} description="Forward" />
-            <ShortcutRow keys={["u"]} description="Back to list" />
-            <ShortcutRow keys={["e"]} description="Archive" />
-            <ShortcutRow keys={["#"]} description="Delete" />
-          </ShortcutSection>
+            <ShortcutSection title="Thread view">
+              <ShortcutRow keys={["r"]} description="Reply" />
+              <ShortcutRow keys={["f"]} description="Forward" />
+              <ShortcutRow keys={["u"]} description="Back to list" />
+              <ShortcutRow keys={["e"]} description="Archive" />
+              <ShortcutRow keys={["#"]} description="Delete" />
+            </ShortcutSection>
 
-          <ShortcutSection title="Compose">
-            <ShortcutRow keys={["Ctrl", "Enter"]} description="Send" />
-            <ShortcutRow keys={["Esc"]} description="Close" />
-          </ShortcutSection>
+            <ShortcutSection title="Compose">
+              <ShortcutRow keys={["Ctrl", "Enter"]} description="Send" />
+              <ShortcutRow keys={["Esc"]} description="Close" />
+            </ShortcutSection>
 
-          <ShortcutSection title="Application">
-            <ShortcutRow keys={["?"]} description="Show shortcuts" />
-          </ShortcutSection>
-        </div>
-      </motion.div>
-    </div>
+            <ShortcutSection title="Application">
+              <ShortcutRow keys={["?"]} description="Show shortcuts" />
+            </ShortcutSection>
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -513,8 +425,6 @@ export function KeyboardShortcuts() {
   }, [pendingG, isInputFocused, router, pathname, isInThread, openCompose, focusedIndex, selectedIds, toggle, clearSelection, showToast, getRows]);
 
   return (
-    <AnimatePresence>
-      {showHelp && <ShortcutsDialog onClose={() => setShowHelp(false)} />}
-    </AnimatePresence>
+    <ShortcutsDialog open={showHelp} onOpenChange={setShowHelp} />
   );
 }
