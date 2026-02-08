@@ -6,7 +6,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ComposeProvider } from "@/components/mail/compose-provider";
 import { ComposeButton } from "./compose-button";
 import { ToastProvider } from "@/components/ui/toast";
+import { SearchBar } from "@/components/mail/search-bar";
+import { KeyboardShortcuts } from "@/components/mail/keyboard-shortcuts";
 import Link from "next/link";
+import { Suspense } from "react";
 
 async function getSidebarData() {
   const sessionId = await requireSessionId();
@@ -120,29 +123,9 @@ export default async function MailLayout({
               </span>
 
               {/* Search bar */}
-              <div className="mx-4 flex max-w-2xl flex-1">
-                <div className="flex w-full items-center gap-3 rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] px-4 py-2.5 transition-[var(--transition-normal)] focus-within:bg-[var(--color-bg-primary)] focus-within:shadow-[var(--shadow-md)]">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0 text-[var(--color-text-secondary)]"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Search mail"
-                    className="w-full bg-transparent text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] outline-none"
-                  />
-                </div>
-              </div>
+              <Suspense>
+                <SearchBar />
+              </Suspense>
 
               {/* Right section */}
               <div className="flex items-center gap-1">
@@ -182,6 +165,7 @@ export default async function MailLayout({
             </main>
           </div>
         </div>
+        <KeyboardShortcuts />
       </ComposeProvider>
     </ToastProvider>
   );
