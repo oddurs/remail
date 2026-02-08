@@ -44,6 +44,45 @@ export function formatRelativeDate(date: Date): string {
 }
 
 /**
+ * Format a full date with relative suffix, Gmail expanded-header style:
+ * "Tue, Feb 3, 7:47 PM (5 days ago)"
+ */
+export function formatFullDate(date: Date): string {
+  const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+  const monthDay = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  let relative: string;
+  if (diffMins < 1) {
+    relative = "just now";
+  } else if (diffMins < 60) {
+    relative = `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
+  } else if (diffHours < 24) {
+    relative = `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  } else if (diffDays < 30) {
+    relative = `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+  } else {
+    const diffMonths = Math.floor(diffDays / 30);
+    relative = `${diffMonths} month${diffMonths === 1 ? "" : "s"} ago`;
+  }
+
+  return `${weekday}, ${monthDay}, ${time} (${relative})`;
+}
+
+/**
  * Generate a snippet from HTML content (strip tags, truncate).
  */
 export function htmlToSnippet(html: string, maxLength = 140): string {

@@ -43,7 +43,7 @@ export async function getEmailList(filter: EmailListFilter) {
       category,
       from_contact_id,
       gmail_contacts!gmail_emails_from_contact_id_fkey (
-        id, name, email, is_self
+        id, name, email, is_self, avatar_url
       ),
       gmail_email_labels (
         gmail_labels (
@@ -136,7 +136,7 @@ export async function getEmailList(filter: EmailListFilter) {
         category,
         from_contact_id,
         gmail_contacts!gmail_emails_from_contact_id_fkey (
-          id, name, email, is_self
+          id, name, email, is_self, avatar_url
         ),
         gmail_email_labels (
           gmail_labels (

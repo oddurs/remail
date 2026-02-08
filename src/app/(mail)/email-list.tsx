@@ -16,6 +16,7 @@ interface EmailData {
     name: string;
     email: string;
     is_self: boolean;
+    avatar_url: string | null;
   } | null;
   gmail_email_labels: Array<{
     gmail_labels: {
@@ -79,6 +80,7 @@ export function EmailList({
             emailId={email.id}
             threadId={email.thread_id}
             sender={senderName}
+            senderAvatar={contact?.avatar_url}
             subject={email.subject}
             snippet={email.snippet}
             time={formatRelativeDate(new Date(email.sent_at))}

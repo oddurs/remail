@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { AnimatePresence } from "framer-motion";
 import { CreateLabelModal } from "@/components/mail/create-label-modal";
 import { EditLabelModal } from "@/components/mail/edit-label-modal";
 
@@ -32,7 +33,7 @@ export function SidebarNav({
   } | null>(null);
 
   return (
-    <nav className="flex-1 overflow-y-auto px-3 py-1">
+    <nav className="flex-1 overflow-y-auto py-1 pr-2">
       {/* System labels */}
       <div className="space-y-0.5">
         <SidebarItem
@@ -69,6 +70,16 @@ export function SidebarNav({
           }
         />
         <SidebarItem
+          label="Important"
+          href="/important"
+          pathname={pathname}
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+            </svg>
+          }
+        />
+        <SidebarItem
           label="Sent"
           href="/sent"
           pathname={pathname}
@@ -91,13 +102,6 @@ export function SidebarNav({
             </svg>
           }
         />
-      </div>
-
-      {/* Divider */}
-      <div className="my-3 border-t border-[var(--color-border-subtle)]" />
-
-      {/* More labels */}
-      <div className="space-y-0.5">
         <SidebarItem
           label="All Mail"
           href="/all"
@@ -134,30 +138,17 @@ export function SidebarNav({
             </svg>
           }
         />
-        <SidebarItem
-          label="Important"
-          href="/important"
-          pathname={pathname}
-          icon={
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-            </svg>
-          }
-        />
       </div>
 
-      {/* Divider */}
-      <div className="my-3 border-t border-[var(--color-border-subtle)]" />
-
-      {/* User labels header */}
-      <div className="flex items-center justify-between px-3 py-1.5">
-        <span className="text-xs font-medium tracking-wide text-[var(--color-text-tertiary)] uppercase">
+      {/* Divider + Labels header */}
+      <div className="mt-4 mb-1 flex items-center justify-between pl-4 pr-3">
+        <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-tertiary)]">
           Labels
         </span>
         <button
           onClick={() => setShowCreateLabel(true)}
-          className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
-          aria-label="Add label"
+          className="rounded-full p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+          aria-label="Create new label"
         >
           <svg
             width="16"
@@ -174,7 +165,7 @@ export function SidebarNav({
         </button>
       </div>
 
-      {/* User labels from DB */}
+      {/* User labels */}
       <div className="space-y-0.5">
         {labels.map((label) => (
           <div key={label.id} className="group/label relative">
@@ -182,11 +173,10 @@ export function SidebarNav({
               label={label.name}
               href={`/label/${label.id}`}
               pathname={pathname}
-              color={label.color ?? undefined}
+              labelColor={label.color}
               icon={
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-                  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={label.color ?? "currentColor"} stroke="none">
+                  <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z" />
                 </svg>
               }
             />
@@ -196,27 +186,32 @@ export function SidebarNav({
                 e.stopPropagation();
                 setEditingLabel(label);
               }}
-              className="invisible absolute right-1 top-1/2 -translate-y-1/2 rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] group-hover/label:visible"
+              className="invisible absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] group-hover/label:visible"
               aria-label={`Edit ${label.name}`}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                <path d="m15 5 4 4" />
+                <circle cx="12" cy="6" r="1.5" />
+                <circle cx="12" cy="12" r="1.5" />
+                <circle cx="12" cy="18" r="1.5" />
               </svg>
             </button>
           </div>
         ))}
       </div>
 
-      {showCreateLabel && (
-        <CreateLabelModal onClose={() => setShowCreateLabel(false)} />
-      )}
-      {editingLabel && (
-        <EditLabelModal
-          label={editingLabel}
-          onClose={() => setEditingLabel(null)}
-        />
-      )}
+      <AnimatePresence>
+        {showCreateLabel && (
+          <CreateLabelModal onClose={() => setShowCreateLabel(false)} />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {editingLabel && (
+          <EditLabelModal
+            label={editingLabel}
+            onClose={() => setEditingLabel(null)}
+          />
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
@@ -226,48 +221,42 @@ function SidebarItem({
   href,
   pathname,
   count,
-  color,
   icon,
+  labelColor,
 }: {
   label: string;
   href: string;
   pathname: string;
   count?: number;
-  color?: string;
   icon?: React.ReactNode;
+  labelColor?: string | null;
 }) {
   const active =
     pathname === href || (href !== "/" && pathname.startsWith(href));
+  const hasCount = count !== undefined && count > 0;
 
   return (
     <Link
       href={href}
       className={`
-        group flex items-center gap-3 rounded-[var(--radius-full)] px-3 py-1.5 text-sm font-medium transition-[var(--transition-fast)]
+        flex items-center gap-4 rounded-r-full py-1.5 pl-6 pr-3 text-[13px] transition-colors duration-100
+        ${hasCount ? "font-bold" : "font-medium"}
         ${
           active
-            ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent-primary)] [&_svg]:fill-current"
-            : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+            : "text-[var(--color-text-secondary)] hover:bg-gray-100 dark:hover:bg-gray-800"
         }
       `}
     >
       {icon && (
-        <span className="shrink-0 [&_svg]:h-5 [&_svg]:w-5">
+        <span className={`shrink-0 [&_svg]:h-5 [&_svg]:w-5 ${active ? "opacity-100" : "opacity-70"}`}>
           {icon}
         </span>
       )}
-      {color && (
-        <span
-          className="h-2.5 w-2.5 shrink-0 rounded-[var(--radius-full)]"
-          style={{ backgroundColor: color }}
-        />
-      )}
       <span className="flex-1 truncate">{label}</span>
-      {count !== undefined && count > 0 && (
-        <span
-          className={`text-xs tabular-nums ${active ? "" : "text-[var(--color-text-tertiary)]"}`}
-        >
-          {count}
+      {hasCount && (
+        <span className="text-xs tabular-nums">
+          {count.toLocaleString()}
         </span>
       )}
     </Link>

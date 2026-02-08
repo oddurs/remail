@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { useCompose } from "./compose-provider";
 import { useSelection } from "./selection-provider";
@@ -79,11 +80,21 @@ function ShortcutsDialog({ onClose }: { onClose: () => void }) {
       aria-label="Keyboard shortcuts"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="absolute inset-0 bg-black/40"
+      />
 
       {/* Dialog */}
-      <div
+      <motion.div
         ref={dialogRef}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
         className="relative max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-6 shadow-[var(--shadow-xl)]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -153,7 +164,7 @@ function ShortcutsDialog({ onClose }: { onClose: () => void }) {
             <ShortcutRow keys={["?"]} description="Show shortcuts" />
           </ShortcutSection>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -501,9 +512,9 @@ export function KeyboardShortcuts() {
     };
   }, [pendingG, isInputFocused, router, pathname, isInThread, openCompose, focusedIndex, selectedIds, toggle, clearSelection, showToast, getRows]);
 
-  if (showHelp) {
-    return <ShortcutsDialog onClose={() => setShowHelp(false)} />;
-  }
-
-  return null;
+  return (
+    <AnimatePresence>
+      {showHelp && <ShortcutsDialog onClose={() => setShowHelp(false)} />}
+    </AnimatePresence>
+  );
 }

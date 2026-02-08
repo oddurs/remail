@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
 import { EmailRow } from "@/components/mail/email-row";
+import { AnimatedList, AnimatedRow } from "@/components/mail/email-list";
 import { InboxToolbar } from "@/components/mail/inbox-toolbar";
 import Link from "next/link";
 
@@ -29,7 +30,8 @@ async function getInboxEmails(category: string = "primary") {
         id,
         name,
         email,
-        is_self
+        is_self,
+        avatar_url
       ),
       gmail_email_labels (
         gmail_labels (
@@ -206,41 +208,45 @@ export default async function InboxPage({
           </div>
         </div>
       ) : (
-        <div className="divide-y divide-[var(--color-border-subtle)]">
-          {threadEmails.map((email) => {
-            const contact = email.gmail_contacts;
-            const senderName = contact?.is_self
-              ? "Me"
-              : (contact?.name ?? "Unknown");
-            const userLabels =
-              email.gmail_email_labels
-                ?.map((el) => el.gmail_labels)
-                .filter(
-                  (l): l is NonNullable<typeof l> =>
-                    l !== null && l.type === "user",
-                ) ?? [];
+        <AnimatedList>
+          <div className="divide-y divide-[var(--color-border-subtle)]">
+            {threadEmails.map((email) => {
+              const contact = email.gmail_contacts;
+              const senderName = contact?.is_self
+                ? "Me"
+                : (contact?.name ?? "Unknown");
+              const userLabels =
+                email.gmail_email_labels
+                  ?.map((el) => el.gmail_labels)
+                  .filter(
+                    (l): l is NonNullable<typeof l> =>
+                      l !== null && l.type === "user",
+                  ) ?? [];
 
-            return (
-              <EmailRow
-                key={email.id}
-                emailId={email.id}
-                threadId={email.thread_id}
-                sender={senderName}
-                subject={email.subject}
-                snippet={email.snippet}
-                time={formatRelativeDate(new Date(email.sent_at))}
-                unread={!email.is_read}
-                starred={email.is_starred}
-                important={email.is_important}
-                isDraft={email.is_draft}
-                labels={userLabels.map((l) => ({
-                  name: l.name,
-                  color: l.color ?? "#666",
-                }))}
-              />
-            );
-          })}
-        </div>
+              return (
+                <AnimatedRow key={email.id}>
+                  <EmailRow
+                    emailId={email.id}
+                    threadId={email.thread_id}
+                    sender={senderName}
+                    senderAvatar={contact?.avatar_url}
+                    subject={email.subject}
+                    snippet={email.snippet}
+                    time={formatRelativeDate(new Date(email.sent_at))}
+                    unread={!email.is_read}
+                    starred={email.is_starred}
+                    important={email.is_important}
+                    isDraft={email.is_draft}
+                    labels={userLabels.map((l) => ({
+                      name: l.name,
+                      color: l.color ?? "#666",
+                    }))}
+                  />
+                </AnimatedRow>
+              );
+            })}
+          </div>
+        </AnimatedList>
       )}
     </div>
   );

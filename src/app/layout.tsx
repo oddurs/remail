@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "@/styles/globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Gmail Redesign",
@@ -34,7 +37,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] antialiased">
+      <body className={`${inter.className} min-h-screen bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] antialiased`}>
         {children}
       </body>
     </html>

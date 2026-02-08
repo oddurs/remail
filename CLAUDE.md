@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CRITICAL: Concurrent Agents
+
+**Multiple Claude Code sessions run in parallel on this codebase.** You are NOT the only agent editing files. Follow these rules strictly:
+
+1. **NEVER run `git checkout` on source files.** Unexpected changes in a file are from another agent, not a linter. Reverting them destroys their work.
+2. **NEVER delete source files you didn't create.** Untracked files in `src/` are from another agent's in-progress work.
+3. **NEVER rewrite entire files.** Use targeted edits (Edit tool with specific `old_string`/`new_string`) so you only change your lines, not overwrite the whole file.
+4. **Always re-read a file immediately before editing it.** Another agent may have changed it since you last read it.
+5. **If a file has new imports, functions, or fields you didn't add**, leave them. They belong to another agent's feature.
+6. **If the build fails on code you didn't write**, fix the specific error rather than reverting the file. The other agent may not have finished yet — create a minimal stub if needed.
+
 ## Project
 
 Remail — a portfolio-grade interactive redesign of Gmail. Fully functional Next.js app with real Supabase data where each visitor gets an auto-seeded anonymous session (no login required).
@@ -15,7 +26,21 @@ npm run lint         # ESLint
 npm run type-check   # tsc --noEmit
 ```
 
-No test runner is configured.
+## Testing
+
+Vitest (unit/component/action) + Playwright (E2E). 178 vitest tests across 21 files, 11 E2E spec files.
+
+```bash
+npm test              # Run all vitest tests
+npm run test:watch    # Watch mode
+npm run test:coverage # Coverage report (v8)
+npm run test:unit     # Unit tests only (tests/unit + tests/actions)
+npm run test:components # Component tests only (tests/components)
+npm run test:e2e      # Playwright E2E tests
+npm run test:a11y     # Accessibility audits (@axe-core/playwright)
+npm run test:all      # Vitest + Playwright
+npm run test:report   # Custom dashboard summary
+```
 
 ## Architecture
 

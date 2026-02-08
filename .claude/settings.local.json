@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run type-check:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "Bash(kill:*)",
+      "Bash(npm i:*)",
+      "Bash(npx playwright:*)",
+      "Bash(node --version:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(npx next lint:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nadd R3 power features: multi-select, bulk actions, label CRUD, keyboard nav, Zod validation\n\n- Multi-select with SelectionProvider context, checkbox wiring, bulk toolbar\n- Keyboard list navigation \\(j/k/o/x/e/#/s\\) with focused row highlight\n- Label management: create/edit/delete modals, label picker, server actions\n- Zod validation on all server actions\n- Accessibility: aria-labels, dialog focus traps, scroll lock, role=checkbox\n- Security: escapeHtml for XSS prevention, escapeLikePattern for SQL injection,\n  session ownership checks on label assignment and deletion\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npx next build:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run seed:generate:*)",
+      "Bash(git stash:*)",
+      "Bash(git stash pop:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(npm run dev:*)",
+      "Bash(git checkout:*)",
+      "Bash(pgrep:*)",
+      "Bash(python3:*)",
+      "Bash(PYTHONPATH=. python3:*)",
+      "Bash(CLAUDE_PLUGIN_ROOT=/Users/oddurs/.claude/plugins/marketplaces/claude-plugins-official/plugins/hookify python3:*)"
+    ]
+  }
+}

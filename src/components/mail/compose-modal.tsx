@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   sendEmail,
   saveDraft,
@@ -16,6 +17,7 @@ interface Contact {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string | null;
 }
 
 interface ComposeState {
@@ -174,317 +176,337 @@ export function ComposeModal({
     }
   }, [scheduleSave]);
 
-  if (!open) return null;
-
-  if (sent) {
-    return (
-      <div className="fixed bottom-0 right-6 z-[var(--z-compose)] w-[560px]">
-        <div className="rounded-t-[var(--radius-md)] bg-[var(--color-bg-elevated)] px-4 py-3 shadow-[var(--shadow-xl)] border border-[var(--color-border-default)] border-b-0">
-          <span className="text-sm text-[var(--color-text-primary)]">
-            Message sent.
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className={cn(
-        "fixed bottom-0 right-6 z-[var(--z-compose)] flex flex-col rounded-t-[var(--radius-md)] border border-b-0 border-[var(--color-border-default)] bg-[var(--color-compose-bg)] shadow-[var(--shadow-xl)]",
-        minimized ? "w-72" : "w-[560px]",
+    <AnimatePresence mode="wait">
+      {open && sent && (
+        <motion.div
+          key="sent"
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.97 }}
+          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          className="fixed bottom-0 right-6 z-[var(--z-compose)] w-[560px]"
+        >
+          <div className="rounded-t-[var(--radius-md)] bg-[var(--color-bg-elevated)] px-4 py-3 shadow-[var(--shadow-xl)] border border-[var(--color-border-default)] border-b-0">
+            <span className="text-sm text-[var(--color-text-primary)]">
+              Message sent.
+            </span>
+          </div>
+        </motion.div>
       )}
-    >
-      {/* Header */}
-      <div
-        className="flex shrink-0 cursor-pointer items-center justify-between rounded-t-[var(--radius-md)] bg-[var(--color-compose-header)] px-4 py-3"
-        onClick={() => setMinimized(!minimized)}
-      >
-        <span className="text-sm font-medium text-white truncate">
-          {state.subject || "New Message"}
-        </span>
-        <div className="flex items-center gap-0.5">
-          {/* Minimize */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setMinimized(!minimized);
-            }}
-            className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
-            aria-label={minimized ? "Expand" : "Minimize"}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-            </svg>
-          </button>
-          {/* Close */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDiscard();
-            }}
-            className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
-            aria-label="Close"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
 
-      {/* Body — hidden when minimized */}
-      {!minimized && (
-        <>
-          {/* Recipients */}
-          <div className="border-b border-[var(--color-border-subtle)]">
-            <RecipientField
-              label="To"
-              contacts={state.to}
-              onChange={(to) => {
-                setState((prev) => ({ ...prev, to }));
-                scheduleSave();
-              }}
-              suffix={
-                <div className="flex gap-1 text-xs text-[var(--color-text-tertiary)]">
-                  {!showCc && (
-                    <button
-                      onClick={() => setShowCc(true)}
-                      className="hover:text-[var(--color-text-secondary)]"
-                    >
-                      Cc
-                    </button>
+      {open && !sent && (
+        <motion.div
+          key="compose"
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.97 }}
+          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          className={cn(
+            "fixed bottom-0 right-6 z-[var(--z-compose)] flex flex-col rounded-t-[var(--radius-md)] border border-b-0 border-[var(--color-border-default)] bg-[var(--color-compose-bg)] shadow-[var(--shadow-xl)]",
+            minimized ? "w-72" : "w-[560px]",
+          )}
+        >
+          {/* Header */}
+          <div
+            className="flex shrink-0 cursor-pointer items-center justify-between rounded-t-[var(--radius-md)] bg-[var(--color-compose-header)] px-4 py-3"
+            onClick={() => setMinimized(!minimized)}
+          >
+            <span className="text-sm font-medium text-white truncate">
+              {state.subject || "New Message"}
+            </span>
+            <div className="flex items-center gap-0.5">
+              {/* Minimize */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMinimized(!minimized);
+                }}
+                className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
+                aria-label={minimized ? "Expand" : "Minimize"}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14" />
+                </svg>
+              </button>
+              {/* Close */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDiscard();
+                }}
+                className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
+                aria-label="Close"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Body — hidden when minimized */}
+          <AnimatePresence initial={false}>
+            {!minimized && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                style={{ overflow: "hidden" }}
+              >
+                {/* Recipients */}
+                <div className="border-b border-[var(--color-border-subtle)]">
+                  <RecipientField
+                    label="To"
+                    contacts={state.to}
+                    onChange={(to) => {
+                      setState((prev) => ({ ...prev, to }));
+                      scheduleSave();
+                    }}
+                    suffix={
+                      <div className="flex gap-1 text-xs text-[var(--color-text-tertiary)]">
+                        {!showCc && (
+                          <button
+                            onClick={() => setShowCc(true)}
+                            className="hover:text-[var(--color-text-secondary)]"
+                          >
+                            Cc
+                          </button>
+                        )}
+                        {!showBcc && (
+                          <button
+                            onClick={() => setShowBcc(true)}
+                            className="hover:text-[var(--color-text-secondary)]"
+                          >
+                            Bcc
+                          </button>
+                        )}
+                      </div>
+                    }
+                  />
+                  {showCc && (
+                    <RecipientField
+                      label="Cc"
+                      contacts={state.cc}
+                      onChange={(cc) => {
+                        setState((prev) => ({ ...prev, cc }));
+                        scheduleSave();
+                      }}
+                    />
                   )}
-                  {!showBcc && (
-                    <button
-                      onClick={() => setShowBcc(true)}
-                      className="hover:text-[var(--color-text-secondary)]"
-                    >
-                      Bcc
-                    </button>
+                  {showBcc && (
+                    <RecipientField
+                      label="Bcc"
+                      contacts={state.bcc}
+                      onChange={(bcc) => {
+                        setState((prev) => ({ ...prev, bcc }));
+                        scheduleSave();
+                      }}
+                    />
                   )}
                 </div>
-              }
-            />
-            {showCc && (
-              <RecipientField
-                label="Cc"
-                contacts={state.cc}
-                onChange={(cc) => {
-                  setState((prev) => ({ ...prev, cc }));
-                  scheduleSave();
-                }}
-              />
+
+                {/* Subject */}
+                <div className="border-b border-[var(--color-border-subtle)]">
+                  <input
+                    type="text"
+                    placeholder="Subject"
+                    value={state.subject}
+                    onChange={(e) => {
+                      setState((prev) => ({ ...prev, subject: e.target.value }));
+                      scheduleSave();
+                    }}
+                    className="w-full bg-transparent px-4 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] outline-none"
+                  />
+                </div>
+
+                {/* Body editor */}
+                <div
+                  ref={bodyRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  onInput={handleBodyInput}
+                  className="min-h-[200px] max-h-[400px] flex-1 overflow-y-auto px-4 py-3 text-sm leading-relaxed text-[var(--color-text-primary)] outline-none [&_a]:text-[var(--color-accent-primary)] [&_a]:underline"
+                  dangerouslySetInnerHTML={{ __html: state.bodyHtml }}
+                />
+
+                {/* Toolbar */}
+                <div className="flex shrink-0 items-center gap-1 border-t border-[var(--color-border-subtle)] px-3 py-2">
+                  {/* Send button */}
+                  <button
+                    onClick={handleSend}
+                    disabled={isSending || state.to.length === 0}
+                    className={cn(
+                      "rounded-[var(--radius-full)] px-5 py-1.5 text-sm font-medium transition-[var(--transition-fast)]",
+                      state.to.length === 0 || isSending
+                        ? "bg-[var(--color-bg-tertiary)] text-[var(--color-text-tertiary)] cursor-not-allowed"
+                        : "bg-[var(--color-accent-primary)] text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-hover)]",
+                    )}
+                  >
+                    {isSending ? "Sending..." : "Send"}
+                  </button>
+
+                  {/* Formatting toolbar */}
+                  <div className="flex items-center gap-0.5 ml-1">
+                    <FormatButton
+                      title="Bold"
+                      onClick={() => document.execCommand("bold")}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                        <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                      </svg>
+                    </FormatButton>
+                    <FormatButton
+                      title="Italic"
+                      onClick={() => document.execCommand("italic")}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="19" x2="10" y1="4" y2="4" />
+                        <line x1="14" x2="5" y1="20" y2="20" />
+                        <line x1="15" x2="9" y1="4" y2="20" />
+                      </svg>
+                    </FormatButton>
+                    <FormatButton
+                      title="Underline"
+                      onClick={() => document.execCommand("underline")}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M6 4v6a6 6 0 0 0 12 0V4" />
+                        <line x1="4" x2="20" y1="20" y2="20" />
+                      </svg>
+                    </FormatButton>
+                    <FormatButton
+                      title="Bulleted list"
+                      onClick={() => document.execCommand("insertUnorderedList")}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="8" x2="21" y1="6" y2="6" />
+                        <line x1="8" x2="21" y1="12" y2="12" />
+                        <line x1="8" x2="21" y1="18" y2="18" />
+                        <line x1="3" x2="3.01" y1="6" y2="6" />
+                        <line x1="3" x2="3.01" y1="12" y2="12" />
+                        <line x1="3" x2="3.01" y1="18" y2="18" />
+                      </svg>
+                    </FormatButton>
+                    <FormatButton
+                      title="Numbered list"
+                      onClick={() => document.execCommand("insertOrderedList")}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="10" x2="21" y1="6" y2="6" />
+                        <line x1="10" x2="21" y1="12" y2="12" />
+                        <line x1="10" x2="21" y1="18" y2="18" />
+                        <path d="M4 6h1v4" />
+                        <path d="M4 10h2" />
+                        <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
+                      </svg>
+                    </FormatButton>
+                  </div>
+
+                  <div className="flex-1" />
+
+                  {/* Saving indicator */}
+                  {isSaving && (
+                    <span className="text-xs text-[var(--color-text-tertiary)]">
+                      Saving...
+                    </span>
+                  )}
+
+                  {/* Delete draft */}
+                  <button
+                    onClick={handleDiscard}
+                    className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+                    title="Discard draft"
+                    aria-label="Discard draft"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </motion.div>
             )}
-            {showBcc && (
-              <RecipientField
-                label="Bcc"
-                contacts={state.bcc}
-                onChange={(bcc) => {
-                  setState((prev) => ({ ...prev, bcc }));
-                  scheduleSave();
-                }}
-              />
-            )}
-          </div>
-
-          {/* Subject */}
-          <div className="border-b border-[var(--color-border-subtle)]">
-            <input
-              type="text"
-              placeholder="Subject"
-              value={state.subject}
-              onChange={(e) => {
-                setState((prev) => ({ ...prev, subject: e.target.value }));
-                scheduleSave();
-              }}
-              className="w-full bg-transparent px-4 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] outline-none"
-            />
-          </div>
-
-          {/* Body editor */}
-          <div
-            ref={bodyRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={handleBodyInput}
-            className="min-h-[200px] max-h-[400px] flex-1 overflow-y-auto px-4 py-3 text-sm leading-relaxed text-[var(--color-text-primary)] outline-none [&_a]:text-[var(--color-accent-primary)] [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: state.bodyHtml }}
-          />
-
-          {/* Toolbar */}
-          <div className="flex shrink-0 items-center gap-1 border-t border-[var(--color-border-subtle)] px-3 py-2">
-            {/* Send button */}
-            <button
-              onClick={handleSend}
-              disabled={isSending || state.to.length === 0}
-              className={cn(
-                "rounded-[var(--radius-full)] px-5 py-1.5 text-sm font-medium transition-[var(--transition-fast)]",
-                state.to.length === 0 || isSending
-                  ? "bg-[var(--color-bg-tertiary)] text-[var(--color-text-tertiary)] cursor-not-allowed"
-                  : "bg-[var(--color-accent-primary)] text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-hover)]",
-              )}
-            >
-              {isSending ? "Sending..." : "Send"}
-            </button>
-
-            {/* Formatting toolbar */}
-            <div className="flex items-center gap-0.5 ml-1">
-              <FormatButton
-                title="Bold"
-                onClick={() => document.execCommand("bold")}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-                  <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-                </svg>
-              </FormatButton>
-              <FormatButton
-                title="Italic"
-                onClick={() => document.execCommand("italic")}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="19" x2="10" y1="4" y2="4" />
-                  <line x1="14" x2="5" y1="20" y2="20" />
-                  <line x1="15" x2="9" y1="4" y2="20" />
-                </svg>
-              </FormatButton>
-              <FormatButton
-                title="Underline"
-                onClick={() => document.execCommand("underline")}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M6 4v6a6 6 0 0 0 12 0V4" />
-                  <line x1="4" x2="20" y1="20" y2="20" />
-                </svg>
-              </FormatButton>
-              <FormatButton
-                title="Bulleted list"
-                onClick={() => document.execCommand("insertUnorderedList")}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="8" x2="21" y1="6" y2="6" />
-                  <line x1="8" x2="21" y1="12" y2="12" />
-                  <line x1="8" x2="21" y1="18" y2="18" />
-                  <line x1="3" x2="3.01" y1="6" y2="6" />
-                  <line x1="3" x2="3.01" y1="12" y2="12" />
-                  <line x1="3" x2="3.01" y1="18" y2="18" />
-                </svg>
-              </FormatButton>
-              <FormatButton
-                title="Numbered list"
-                onClick={() => document.execCommand("insertOrderedList")}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="10" x2="21" y1="6" y2="6" />
-                  <line x1="10" x2="21" y1="12" y2="12" />
-                  <line x1="10" x2="21" y1="18" y2="18" />
-                  <path d="M4 6h1v4" />
-                  <path d="M4 10h2" />
-                  <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
-                </svg>
-              </FormatButton>
-            </div>
-
-            <div className="flex-1" />
-
-            {/* Saving indicator */}
-            {isSaving && (
-              <span className="text-xs text-[var(--color-text-tertiary)]">
-                Saving...
-              </span>
-            )}
-
-            {/* Delete draft */}
-            <button
-              onClick={handleDiscard}
-              className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
-              title="Discard draft"
-              aria-label="Discard draft"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-              </svg>
-            </button>
-          </div>
-        </>
+          </AnimatePresence>
+        </motion.div>
       )}
-    </div>
+    </AnimatePresence>
   );
 }
 
@@ -519,7 +541,7 @@ function RecipientField({
     searchTimer.current = setTimeout(async () => {
       try {
         const results = await searchContacts(query);
-        setSuggestions(results);
+        setSuggestions(results.map((r) => ({ ...r, avatarUrl: r.avatar_url })));
         setShowSuggestions(results.length > 0);
         setSelectedIndex(0);
       } catch {
@@ -674,9 +696,13 @@ function RecipientField({
                   : "hover:bg-[var(--color-bg-hover)]",
               )}
             >
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-xs font-medium text-[var(--color-text-secondary)]">
-                {contact.name.charAt(0).toUpperCase()}
-              </div>
+              {contact.avatarUrl ? (
+                <img src={contact.avatarUrl} alt="" className="h-7 w-7 shrink-0 rounded-[var(--radius-full)] object-cover" />
+              ) : (
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-xs font-medium text-[var(--color-text-secondary)]">
+                  {contact.name.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium text-[var(--color-text-primary)]">
                   {contact.name}

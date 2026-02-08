@@ -601,7 +601,7 @@ export async function searchContacts(query: string) {
 
   const { data: contacts } = await supabase
     .from("gmail_contacts")
-    .select("id, name, email, is_self")
+    .select("id, name, email, is_self, avatar_url")
     .eq("session_id", sessionId)
     .eq("is_self", false)
     .or(`name.ilike.%${escapeLikePattern(query)}%,email.ilike.%${escapeLikePattern(query)}%`)

@@ -1,16 +1,14 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
-import { formatRelativeDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ThreadToolbarActions,
-  StarButton,
   ThreadSnoozeButton,
   ThreadLabelButton,
-  ReplyButton,
-  ForwardButton,
+  ToolbarMoreMenu,
 } from "@/components/mail/thread-actions";
+import { ThreadMessages } from "@/components/mail/thread-messages";
 
 async function getThread(threadId: string) {
   const sessionId = await requireSessionId();
@@ -31,6 +29,7 @@ async function getThread(threadId: string) {
       `
       id,
       subject,
+      snippet,
       body_html,
       sent_at,
       is_read,
@@ -41,7 +40,8 @@ async function getThread(threadId: string) {
         id,
         name,
         email,
-        is_self
+        is_self,
+        avatar_url
       ),
       gmail_email_recipients (
         type,
@@ -153,26 +153,7 @@ export default async function ThreadPage({
           currentLabelIds={labels.map((l) => l.id)}
           labels={allLabels}
         />
-        <button
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-          title="More"
-          aria-label="More"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="5" r="1" />
-            <circle cx="12" cy="19" r="1" />
-          </svg>
-        </button>
+        <ToolbarMoreMenu />
       </div>
 
       {/* Thread header */}
@@ -200,107 +181,11 @@ export default async function ThreadPage({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl space-y-3 px-6 py-4">
-          {messages.map((message, index) => {
-            const contact = message.gmail_contacts;
-            const senderName = contact?.is_self
-              ? "Me"
-              : (contact?.name ?? "Unknown");
-            const senderEmail = contact?.email ?? "";
-            const isLast = index === messages.length - 1;
-            const recipients = message.gmail_email_recipients ?? [];
-            const toNames = recipients
-              .filter((r) => r.type === "to")
-              .map(
-                (r) =>
-                  r.gmail_contacts?.name ??
-                  r.gmail_contacts?.email ??
-                  "Unknown",
-              );
-
-            return (
-              <div
-                key={message.id}
-                className="rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] shadow-[var(--shadow-xs)]"
-              >
-                {/* Header */}
-                <div className="flex items-start gap-3 px-5 py-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-sm font-medium text-[var(--color-text-secondary)]">
-                    {senderName.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-sm font-semibold text-[var(--color-text-primary)]">
-                        {senderName}
-                      </span>
-                      <span className="text-xs text-[var(--color-text-tertiary)]">
-                        &lt;{senderEmail}&gt;
-                      </span>
-                    </div>
-                    <div className="text-xs text-[var(--color-text-tertiary)]">
-                      to {toNames.length > 0 ? toNames.join(", ") : "me"}
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <span className="mr-1 text-xs text-[var(--color-text-tertiary)]">
-                      {formatRelativeDate(new Date(message.sent_at))}
-                    </span>
-                    <StarButton
-                      emailId={message.id}
-                      starred={message.is_starred}
-                    />
-                    <button
-                      className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
-                      title="More"
-                      aria-label="More"
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <circle cx="12" cy="12" r="1" />
-                        <circle cx="12" cy="5" r="1" />
-                        <circle cx="12" cy="19" r="1" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Body */}
-                <div
-                  className="px-5 pb-5 pl-[4.25rem] text-sm leading-relaxed text-[var(--color-text-primary)] [&_a]:text-[var(--color-accent-primary)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--color-border-default)] [&_blockquote]:pl-3 [&_blockquote]:text-[var(--color-text-secondary)] [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_table]:text-sm [&_ul]:list-disc [&_ul]:pl-5"
-                  dangerouslySetInnerHTML={{ __html: message.body_html }}
-                />
-
-                {/* Reply/Forward on last message */}
-                {isLast && !message.is_draft && (
-                  <div className="mx-5 mb-5 ml-[4.25rem] flex gap-2">
-                    <ReplyButton
-                      threadId={thread.id}
-                      subject={thread.subject}
-                      senderName={senderName}
-                      senderEmail={senderEmail}
-                      bodyHtml={message.body_html}
-                      sentAt={formatRelativeDate(new Date(message.sent_at))}
-                    />
-                    <ForwardButton
-                      threadId={thread.id}
-                      subject={thread.subject}
-                      senderName={senderName}
-                      senderEmail={senderEmail}
-                      bodyHtml={message.body_html}
-                      sentAt={formatRelativeDate(new Date(message.sent_at))}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <ThreadMessages
+          messages={messages}
+          threadId={thread.id}
+          threadSubject={thread.subject}
+        />
       </div>
     </div>
   );

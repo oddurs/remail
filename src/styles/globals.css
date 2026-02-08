@@ -164,7 +164,6 @@ body {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
   font-family:
-    "Google Sans",
     "Inter",
     -apple-system,
     BlinkMacSystemFont,
@@ -249,4 +248,14 @@ body {
 /* ─── Keyboard Navigation Focus ────────────────────────────────────────────── */
 [data-email-id][data-focused="true"] {
   box-shadow: inset 3px 0 0 var(--color-accent-primary);
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

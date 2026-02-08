@@ -2,6 +2,7 @@
 
 import { useCompose } from "@/components/mail/compose-provider";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   toggleStar,
   archiveThread,
@@ -11,7 +12,7 @@ import {
   markThreadReadStatus,
 } from "@/lib/actions/email";
 import { useToast } from "@/components/ui/toast";
-import { useState, useTransition } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { SnoozePicker } from "@/components/mail/snooze-picker";
 import { LabelPicker } from "@/components/mail/label-picker";
 import { escapeHtml } from "@/lib/utils";
@@ -141,18 +142,21 @@ export function StarButton({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <button
+    <motion.button
       onClick={() => {
         startTransition(async () => {
           await toggleStar(emailId, !starred);
         });
       }}
       disabled={isPending}
+      whileTap={{ scale: 1.3 }}
+      transition={{ type: "spring", stiffness: 500, damping: 15 }}
       className={`rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
         starred
           ? "text-[var(--color-star)]"
           : "text-[var(--color-text-tertiary)]"
       }`}
+      aria-label={starred ? "Unstar" : "Star"}
     >
       <svg
         width="14"
@@ -164,7 +168,7 @@ export function StarButton({
       >
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
-    </button>
+    </motion.button>
   );
 }
 
@@ -195,12 +199,14 @@ export function ThreadSnoozeButton({ emailId }: { emailId: string }) {
           <polyline points="12 6 12 12 16 14" />
         </svg>
       </button>
-      {showSnooze && (
-        <SnoozePicker
-          emailId={emailId}
-          onClose={() => setShowSnooze(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showSnooze && (
+          <SnoozePicker
+            emailId={emailId}
+            onClose={() => setShowSnooze(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -240,14 +246,16 @@ export function ThreadLabelButton({
           <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
         </svg>
       </button>
-      {showPicker && (
-        <LabelPicker
-          emailIds={emailIds}
-          currentLabelIds={currentLabelIds}
-          labels={labels}
-          onClose={() => setShowPicker(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showPicker && (
+          <LabelPicker
+            emailIds={emailIds}
+            currentLabelIds={currentLabelIds}
+            labels={labels}
+            onClose={() => setShowPicker(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -316,6 +324,63 @@ export function ReplyButton({
   );
 }
 
+export function ReplyAllButton({
+  threadId,
+  subject,
+  senderName,
+  senderEmail,
+  bodyHtml,
+  sentAt,
+  allRecipients,
+}: ReplyForwardProps & {
+  allRecipients: Array<{ name: string; email: string }>;
+}) {
+  const { openReply } = useCompose();
+
+  const handleReplyAll = () => {
+    const replySubject = subject.startsWith("Re:") ? subject : `Re: ${subject}`;
+    const quotedHtml = `
+      <br><br>
+      <div style="border-left: 2px solid #ccc; padding-left: 12px; color: #666;">
+        <p>On ${escapeHtml(sentAt)}, ${escapeHtml(senderName)} &lt;${escapeHtml(senderEmail)}&gt; wrote:</p>
+        ${bodyHtml}
+      </div>
+    `;
+
+    openReply({
+      to: allRecipients.map((r) => ({ id: r.email, name: r.name, email: r.email })),
+      subject: replySubject,
+      bodyHtml: quotedHtml,
+      threadId,
+    });
+  };
+
+  return (
+    <button
+      onClick={handleReplyAll}
+      className="rounded-[var(--radius-full)] border border-[var(--color-border-default)] px-5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-[var(--transition-fast)]"
+    >
+      <span className="flex items-center gap-2">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="7 17 2 12 7 7" />
+          <polyline points="12 17 7 12 12 7" />
+          <path d="M22 18v-2a4 4 0 0 0-4-4H7" />
+        </svg>
+        Reply all
+      </span>
+    </button>
+  );
+}
+
 export function ForwardButton({
   threadId,
   subject,
@@ -369,5 +434,202 @@ export function ForwardButton({
         Forward
       </span>
     </button>
+  );
+}
+
+/* ─── More Menu (shared items) ──────────────────────────────────────────────── */
+
+function MoreMenuDropdown({ onClose }: { onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+
+  const items = [
+    {
+      label: "Snooze",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+    },
+    {
+      label: "Add to Tasks",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      ),
+    },
+    {
+      label: "Create event",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+          <path d="M16 2v4M8 2v4M3 10h18" />
+        </svg>
+      ),
+    },
+    {
+      label: "Forward all",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 17 20 12 15 7" />
+          <path d="M4 18v-2a4 4 0 0 1 4-4h12" />
+        </svg>
+      ),
+    },
+    { separator: true } as const,
+    {
+      label: "Label as",
+      hasSubmenu: true,
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+          <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      label: "Filter messages like these",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="4" x2="20" y1="6" y2="6" />
+          <line x1="7" x2="17" y1="12" y2="12" />
+          <line x1="10" x2="14" y1="18" y2="18" />
+        </svg>
+      ),
+    },
+    {
+      label: "Mute",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 5L6 9H2v6h4l5 4V5z" />
+          <line x1="23" x2="17" y1="9" y2="15" />
+          <line x1="17" x2="23" y1="9" y2="15" />
+        </svg>
+      ),
+    },
+  ];
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+      transition={{ duration: 0.15 }}
+      className="absolute right-0 top-full z-[var(--z-dropdown)] mt-1 w-56 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
+      role="menu"
+      aria-label="More options"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {items.map((item, i) =>
+        "separator" in item ? (
+          <div
+            key={`sep-${i}`}
+            className="mx-3 my-1 border-t border-[var(--color-border-subtle)]"
+          />
+        ) : (
+          <button
+            key={item.label}
+            role="menuitem"
+            onClick={() => onClose()}
+            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]"
+          >
+            <span className="text-[var(--color-text-secondary)]">
+              {item.icon}
+            </span>
+            <span className="flex-1 text-left">{item.label}</span>
+            {"hasSubmenu" in item && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-text-tertiary)]">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            )}
+          </button>
+        ),
+      )}
+    </motion.div>
+  );
+}
+
+/* ─── Message More Menu (per-email ⋮) ────────────────────────────────────── */
+
+export function MessageMoreMenu() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
+        title="More"
+        aria-label="More"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="5" r="1" />
+          <circle cx="12" cy="19" r="1" />
+        </svg>
+      </button>
+      <AnimatePresence>
+        {open && <MoreMenuDropdown onClose={() => setOpen(false)} />}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ─── Toolbar More Menu (thread toolbar ⋮) ──────────────────────────────── */
+
+export function ToolbarMoreMenu() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+        title="More"
+        aria-label="More"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="5" r="1" />
+          <circle cx="12" cy="19" r="1" />
+        </svg>
+      </button>
+      <AnimatePresence>
+        {open && <MoreMenuDropdown onClose={() => setOpen(false)} />}
+      </AnimatePresence>
+    </div>
   );
 }

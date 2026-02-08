@@ -32,7 +32,8 @@ export async function searchEmails(query: string) {
         id,
         name,
         email,
-        is_self
+        is_self,
+        avatar_url
       ),
       gmail_email_labels (
         gmail_labels (

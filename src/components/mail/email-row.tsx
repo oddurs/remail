@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   toggleStar,
   archiveEmails,
@@ -17,6 +18,7 @@ export function EmailRow({
   emailId,
   threadId,
   sender,
+  senderAvatar,
   subject,
   snippet,
   time,
@@ -29,6 +31,7 @@ export function EmailRow({
   emailId: string;
   threadId: string;
   sender: string;
+  senderAvatar?: string | null;
   subject: string;
   snippet: string;
   time: string;
@@ -147,9 +150,11 @@ export function EmailRow({
       </button>
 
       {/* Star */}
-      <button
+      <motion.button
         onClick={handleStarClick}
         disabled={isStarPending}
+        whileTap={{ scale: 1.3 }}
+        transition={{ type: "spring", stiffness: 500, damping: 15 }}
         className={`shrink-0 rounded-[var(--radius-full)] p-1 transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)] ${
           starred
             ? "text-[var(--color-star)]"
@@ -169,7 +174,7 @@ export function EmailRow({
         >
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
-      </button>
+      </motion.button>
 
       {/* Important marker */}
       {important && (
@@ -190,16 +195,23 @@ export function EmailRow({
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Sender */}
         <span
-          className={`w-52 shrink-0 truncate text-sm ${
+          className={`flex w-52 shrink-0 items-center gap-2 truncate text-sm ${
             unread
               ? "font-semibold text-[var(--color-text-primary)]"
               : "text-[var(--color-text-secondary)]"
           }`}
         >
+          {senderAvatar ? (
+            <img src={senderAvatar} alt="" className="h-6 w-6 shrink-0 rounded-[var(--radius-full)] object-cover" />
+          ) : (
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-xs font-medium text-[var(--color-text-secondary)]">
+              {sender.charAt(0).toUpperCase()}
+            </span>
+          )}
           {isDraft ? (
             <span className="text-[var(--color-error)]">Draft</span>
           ) : (
-            sender
+            <span className="truncate">{sender}</span>
           )}
         </span>
 
@@ -251,7 +263,7 @@ export function EmailRow({
       </div>
 
       {/* Hover actions — appear on hover, positioned over the timestamp */}
-      <div className="invisible absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-1.5 shadow-[var(--shadow-sm)] group-hover:visible">
+      <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-1.5 shadow-[var(--shadow-sm)] opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 transition-opacity duration-150">
         {/* Archive */}
         <button
           onClick={handleArchive}
@@ -366,12 +378,14 @@ export function EmailRow({
               <polyline points="12 6 12 12 16 14" />
             </svg>
           </button>
-          {showSnooze && (
-            <SnoozePicker
-              emailId={emailId}
-              onClose={() => setShowSnooze(false)}
-            />
-          )}
+          <AnimatePresence>
+            {showSnooze && (
+              <SnoozePicker
+                emailId={emailId}
+                onClose={() => setShowSnooze(false)}
+              />
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </a>

@@ -8,11 +8,11 @@ export function ComposeButton() {
   return (
     <button
       onClick={() => openCompose()}
-      className="flex w-full items-center gap-3 rounded-[var(--radius-xl)] bg-[var(--color-accent-subtle)] px-6 py-3.5 text-sm font-medium text-[var(--color-accent-primary)] shadow-[var(--shadow-sm)] transition-[var(--transition-normal)] hover:bg-[var(--color-accent-muted)] hover:shadow-[var(--shadow-md)]"
+      className="flex items-center gap-3 rounded-2xl bg-[var(--color-bg-tertiary)] px-5 py-3 text-sm font-medium text-[var(--color-text-primary)] shadow-sm transition-shadow duration-200 hover:shadow-md"
     >
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

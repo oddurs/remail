@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
+import { motion } from "framer-motion";
 import { snoozeEmail } from "@/lib/actions/email";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -98,8 +99,12 @@ export function SnoozePicker({
   };
 
   return (
-    <div
+    <motion.div
       ref={ref}
+      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+      transition={{ duration: 0.15 }}
       className="absolute right-0 top-full z-[var(--z-dropdown)] mt-1 w-64 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
       role="menu"
       aria-label="Snooze options"
@@ -176,6 +181,6 @@ export function SnoozePicker({
           </button>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
+import { motion } from "framer-motion";
 import { createLabel } from "@/lib/actions/labels";
 import { useToast } from "@/components/ui/toast";
 
@@ -82,9 +83,20 @@ export function CreateLabelModal({ onClose }: { onClose: () => void }) {
       aria-modal="true"
       aria-label="Create label"
     >
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+      />
+      <motion.div
         ref={dialogRef}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
         className="relative w-full max-w-sm rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] p-6 shadow-[var(--shadow-xl)]"
       >
         <h2 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">
@@ -150,7 +162,7 @@ export function CreateLabelModal({ onClose }: { onClose: () => void }) {
             {isPending ? "Creating..." : "Create"}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

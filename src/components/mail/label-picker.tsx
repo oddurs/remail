@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
+import { motion } from "framer-motion";
 import { assignLabels } from "@/lib/actions/labels";
 import { useToast } from "@/components/ui/toast";
 
@@ -69,8 +70,12 @@ export function LabelPicker({
   };
 
   return (
-    <div
+    <motion.div
       ref={ref}
+      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+      transition={{ duration: 0.15 }}
       className="absolute left-0 top-full z-[var(--z-dropdown)] mt-1 w-56 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
       onClick={(e) => e.stopPropagation()}
     >
@@ -135,6 +140,6 @@ export function LabelPicker({
           {isPending ? "Applying..." : "Apply"}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
