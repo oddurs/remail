@@ -10,6 +10,7 @@ import {
   markReadStatus,
 } from "@/lib/actions/email";
 import { useToast } from "@/components/ui/toast";
+import { useSelection } from "@/components/mail/selection-provider";
 import { SnoozePicker } from "@/components/mail/snooze-picker";
 
 export function EmailRow({
@@ -41,6 +42,8 @@ export function EmailRow({
   const [isActionPending, startActionTransition] = useTransition();
   const [showSnooze, setShowSnooze] = useState(false);
   const { showToast } = useToast();
+  const { isSelected, toggle } = useSelection();
+  const selected = isSelected(emailId);
 
   const handleStarClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,30 +94,56 @@ export function EmailRow({
   return (
     <a
       href={`/thread/${threadId}`}
+      data-email-id={emailId}
+      data-thread-id={threadId}
+      data-starred={starred ? "true" : undefined}
       className={`
-        group relative flex cursor-pointer items-center gap-2 px-4 py-2 transition-[var(--transition-fast)]
-        ${unread ? "bg-[var(--color-unread-bg)]" : "bg-[var(--color-read-bg)]"}
-        hover:z-[1] hover:shadow-[var(--shadow-xs)]
+        group relative flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-[var(--transition-fast)]
+        ${selected ? "bg-[var(--color-accent-subtle)]" : unread ? "bg-[var(--color-unread-bg)]" : "bg-[var(--color-read-bg)]"}
+        hover:z-[1] hover:shadow-[var(--shadow-sm)]
         ${isActionPending ? "opacity-50" : ""}
       `}
     >
       {/* Checkbox */}
       <button
-        onClick={(e) => e.preventDefault()}
-        className="shrink-0 rounded-[var(--radius-xs)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggle(emailId);
+        }}
+        className={`shrink-0 rounded-[var(--radius-xs)] p-1 hover:bg-[var(--color-bg-hover)] ${
+          selected ? "text-[var(--color-accent-primary)]" : "text-[var(--color-text-tertiary)]"
+        }`}
+        aria-label={selected ? "Deselect" : "Select"}
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect width="18" height="18" x="3" y="3" rx="2" />
-        </svg>
+        {selected ? (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect width="18" height="18" x="3" y="3" rx="2" fill="currentColor" />
+            <path d="m9 12 2 2 4-4" stroke="var(--color-bg-primary)" strokeWidth="2" />
+          </svg>
+        ) : (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+          </svg>
+        )}
       </button>
 
       {/* Star */}
@@ -126,6 +155,7 @@ export function EmailRow({
             ? "text-[var(--color-star)]"
             : "text-[var(--color-text-tertiary)]"
         }`}
+        aria-label={starred ? "Unstar" : "Star"}
       >
         <svg
           width="16"
@@ -160,7 +190,7 @@ export function EmailRow({
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Sender */}
         <span
-          className={`w-44 shrink-0 truncate text-sm ${
+          className={`w-52 shrink-0 truncate text-sm ${
             unread
               ? "font-semibold text-[var(--color-text-primary)]"
               : "text-[var(--color-text-secondary)]"
@@ -221,13 +251,14 @@ export function EmailRow({
       </div>
 
       {/* Hover actions — appear on hover, positioned over the timestamp */}
-      <div className="invisible absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-0.5 rounded-[var(--radius-sm)] bg-[var(--color-bg-primary)] px-1 shadow-[var(--shadow-sm)] group-hover:visible">
+      <div className="invisible absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-1.5 shadow-[var(--shadow-sm)] group-hover:visible">
         {/* Archive */}
         <button
           onClick={handleArchive}
           disabled={isActionPending}
           className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
           title="Archive"
+          aria-label="Archive"
         >
           <svg
             width="16"
@@ -251,6 +282,7 @@ export function EmailRow({
           disabled={isActionPending}
           className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
           title="Delete"
+          aria-label="Delete"
         >
           <svg
             width="16"
@@ -274,6 +306,7 @@ export function EmailRow({
           disabled={isActionPending}
           className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
           title={unread ? "Mark as read" : "Mark as unread"}
+          aria-label={unread ? "Mark as read" : "Mark as unread"}
         >
           {unread ? (
             <svg
@@ -317,6 +350,7 @@ export function EmailRow({
             }}
             className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
             title="Snooze"
+            aria-label="Snooze"
           >
             <svg
               width="16"

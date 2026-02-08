@@ -8,6 +8,7 @@ import {
   searchContacts,
 } from "@/lib/actions/email";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
 
 /* ─── Types ──────────────────────────────────────────────────────────────────── */
 
@@ -61,6 +62,7 @@ export function ComposeModal({
   const [isSaving, startSaveTransition] = useTransition();
   const [sent, setSent] = useState(false);
 
+  const { showToast } = useToast();
   const bodyRef = useRef<HTMLDivElement>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -112,8 +114,8 @@ export function ComposeModal({
                 threadId: result.threadId,
               }));
             }
-          } catch {
-            // Silent fail for auto-save
+          } catch (err) {
+            console.error("Auto-save failed:", err);
           }
         });
       }
@@ -145,10 +147,10 @@ export function ComposeModal({
           onClose();
         }, 1500);
       } catch {
-        // Could show error toast here
+        showToast({ message: "Failed to send message" });
       }
     });
-  }, [state, onClose]);
+  }, [state, onClose, showToast]);
 
   const handleDiscard = useCallback(() => {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -156,8 +158,8 @@ export function ComposeModal({
       startSaveTransition(async () => {
         try {
           await discardDraft(state.draftId!);
-        } catch {
-          // Silent fail
+        } catch (err) {
+          console.error("Discard draft failed:", err);
         }
       });
     }
@@ -195,10 +197,10 @@ export function ComposeModal({
     >
       {/* Header */}
       <div
-        className="flex shrink-0 cursor-pointer items-center justify-between rounded-t-[var(--radius-md)] bg-[var(--color-bg-tertiary)] px-4 py-2.5"
+        className="flex shrink-0 cursor-pointer items-center justify-between rounded-t-[var(--radius-md)] bg-[var(--color-compose-header)] px-4 py-3"
         onClick={() => setMinimized(!minimized)}
       >
-        <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+        <span className="text-sm font-medium text-white truncate">
           {state.subject || "New Message"}
         </span>
         <div className="flex items-center gap-0.5">
@@ -208,7 +210,8 @@ export function ComposeModal({
               e.stopPropagation();
               setMinimized(!minimized);
             }}
-            className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+            className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
+            aria-label={minimized ? "Expand" : "Minimize"}
           >
             <svg
               width="14"
@@ -229,7 +232,8 @@ export function ComposeModal({
               e.stopPropagation();
               handleDiscard();
             }}
-            className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+            className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
+            aria-label="Close"
           >
             <svg
               width="14"
@@ -460,6 +464,7 @@ export function ComposeModal({
               onClick={handleDiscard}
               className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
               title="Discard draft"
+              aria-label="Discard draft"
             >
               <svg
                 width="16"
@@ -614,6 +619,7 @@ function RecipientField({
             <button
               onClick={() => removeContact(contact.email)}
               className="ml-0.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]"
+              aria-label={`Remove ${contact.name || contact.email}`}
             >
               <svg
                 width="10"
@@ -702,6 +708,7 @@ function FormatButton({
     <button
       type="button"
       title={title}
+      aria-label={title}
       onMouseDown={(e) => {
         e.preventDefault(); // Prevent focus loss from contentEditable
         onClick();

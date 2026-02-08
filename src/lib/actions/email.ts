@@ -3,11 +3,26 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { htmlToSnippet } from "@/lib/utils";
+import { htmlToSnippet, escapeLikePattern } from "@/lib/utils";
+import {
+  toggleStarSchema,
+  toggleImportantSchema,
+  markReadStatusSchema,
+  archiveEmailsSchema,
+  trashEmailsSchema,
+  snoozeEmailSchema,
+  sendEmailSchema,
+  saveDraftSchema,
+  singleEmailIdSchema,
+  singleThreadIdSchema,
+  markSpamSchema,
+  threadReadStatusSchema,
+} from "@/lib/validations";
 
 /* ─── Toggle Star ────────────────────────────────────────────────────────────── */
 
 export async function toggleStar(emailId: string, starred: boolean) {
+  toggleStarSchema.parse({ emailId, starred });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -24,6 +39,7 @@ export async function toggleStar(emailId: string, starred: boolean) {
 /* ─── Toggle Important ───────────────────────────────────────────────────────── */
 
 export async function toggleImportant(emailId: string, important: boolean) {
+  toggleImportantSchema.parse({ emailId, important });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -40,6 +56,7 @@ export async function toggleImportant(emailId: string, important: boolean) {
 /* ─── Mark Read / Unread ─────────────────────────────────────────────────────── */
 
 export async function markReadStatus(emailIds: string[], isRead: boolean) {
+  markReadStatusSchema.parse({ emailIds, isRead });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -56,6 +73,7 @@ export async function markReadStatus(emailIds: string[], isRead: boolean) {
 /* ─── Archive ────────────────────────────────────────────────────────────────── */
 
 export async function archiveEmails(emailIds: string[]) {
+  archiveEmailsSchema.parse({ emailIds });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -72,6 +90,7 @@ export async function archiveEmails(emailIds: string[]) {
 /* ─── Unarchive ─────────────────────────────────────────────────────────────── */
 
 export async function unarchiveEmails(emailIds: string[]) {
+  archiveEmailsSchema.parse({ emailIds });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -88,6 +107,7 @@ export async function unarchiveEmails(emailIds: string[]) {
 /* ─── Move to Trash ──────────────────────────────────────────────────────────── */
 
 export async function trashEmails(emailIds: string[]) {
+  trashEmailsSchema.parse({ emailIds });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -104,6 +124,7 @@ export async function trashEmails(emailIds: string[]) {
 /* ─── Untrash ────────────────────────────────────────────────────────────────── */
 
 export async function untrashEmails(emailIds: string[]) {
+  trashEmailsSchema.parse({ emailIds });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -120,6 +141,7 @@ export async function untrashEmails(emailIds: string[]) {
 /* ─── Mark as Spam ───────────────────────────────────────────────────────────── */
 
 export async function markSpam(emailIds: string[], isSpam: boolean) {
+  markSpamSchema.parse({ emailIds, isSpam });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -136,6 +158,7 @@ export async function markSpam(emailIds: string[], isSpam: boolean) {
 /* ─── Delete Permanently ─────────────────────────────────────────────────────── */
 
 export async function deleteEmails(emailIds: string[]) {
+  archiveEmailsSchema.parse({ emailIds });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -152,6 +175,7 @@ export async function deleteEmails(emailIds: string[]) {
 /* ─── Archive Thread ─────────────────────────────────────────────────────────── */
 
 export async function archiveThread(threadId: string) {
+  singleThreadIdSchema.parse({ threadId });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -168,6 +192,7 @@ export async function archiveThread(threadId: string) {
 /* ─── Unarchive Thread ──────────────────────────────────────────────────────── */
 
 export async function unarchiveThread(threadId: string) {
+  singleThreadIdSchema.parse({ threadId });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -184,6 +209,7 @@ export async function unarchiveThread(threadId: string) {
 /* ─── Untrash Thread ────────────────────────────────────────────────────────── */
 
 export async function untrashThread(threadId: string) {
+  singleThreadIdSchema.parse({ threadId });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -200,6 +226,7 @@ export async function untrashThread(threadId: string) {
 /* ─── Trash Thread ───────────────────────────────────────────────────────────── */
 
 export async function trashThread(threadId: string) {
+  singleThreadIdSchema.parse({ threadId });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -216,6 +243,7 @@ export async function trashThread(threadId: string) {
 /* ─── Mark Thread Read/Unread ────────────────────────────────────────────────── */
 
 export async function markThreadReadStatus(threadId: string, isRead: boolean) {
+  threadReadStatusSchema.parse({ threadId, isRead });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -233,6 +261,7 @@ export async function markThreadReadStatus(threadId: string, isRead: boolean) {
 /* ─── Snooze Email ──────────────────────────────────────────────────────────── */
 
 export async function snoozeEmail(emailId: string, snoozeUntil: string) {
+  snoozeEmailSchema.parse({ emailId, snoozeUntil });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -249,6 +278,7 @@ export async function snoozeEmail(emailId: string, snoozeUntil: string) {
 /* ─── Unsnooze Email ────────────────────────────────────────────────────────── */
 
 export async function unsnoozeEmail(emailId: string) {
+  singleEmailIdSchema.parse({ emailId });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -275,6 +305,7 @@ interface SendEmailInput {
 }
 
 export async function sendEmail(input: SendEmailInput) {
+  sendEmailSchema.parse(input);
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -421,6 +452,7 @@ interface SaveDraftInput {
 }
 
 export async function saveDraft(input: SaveDraftInput) {
+  saveDraftSchema.parse(input);
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -546,6 +578,7 @@ export async function saveDraft(input: SaveDraftInput) {
 /* ─── Discard Draft ──────────────────────────────────────────────────────────── */
 
 export async function discardDraft(draftId: string) {
+  singleEmailIdSchema.parse({ emailId: draftId });
   const sessionId = await requireSessionId();
   const supabase = createServiceClient();
 
@@ -571,7 +604,7 @@ export async function searchContacts(query: string) {
     .select("id, name, email, is_self")
     .eq("session_id", sessionId)
     .eq("is_self", false)
-    .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
+    .or(`name.ilike.%${escapeLikePattern(query)}%,email.ilike.%${escapeLikePattern(query)}%`)
     .order("name")
     .limit(10);
 

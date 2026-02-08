@@ -56,6 +56,7 @@
   --color-unread-bg: #ffffff;
   --color-read-bg: #fafafa;
   --color-compose-bg: #ffffff;
+  --color-compose-header: #18181b;
 
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -143,6 +144,7 @@
   --color-unread-bg: #1a1a1a;
   --color-read-bg: #141414;
   --color-compose-bg: #1e1e1e;
+  --color-compose-header: #2a2a2e;
 
   /* Shadows — barely visible on true dark, rely on borders for elevation */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -242,4 +244,9 @@ body {
     color 200ms ease,
     border-color 200ms ease,
     box-shadow 200ms ease !important;
+}
+
+/* ─── Keyboard Navigation Focus ────────────────────────────────────────────── */
+[data-email-id][data-focused="true"] {
+  box-shadow: inset 3px 0 0 var(--color-accent-primary);
 }

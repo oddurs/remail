@@ -13,6 +13,8 @@ import {
 import { useToast } from "@/components/ui/toast";
 import { useState, useTransition } from "react";
 import { SnoozePicker } from "@/components/mail/snooze-picker";
+import { LabelPicker } from "@/components/mail/label-picker";
+import { escapeHtml } from "@/lib/utils";
 
 /* ─── Thread Toolbar Actions ─────────────────────────────────────────────────── */
 
@@ -63,6 +65,7 @@ export function ThreadToolbarActions({ threadId }: { threadId: string }) {
         disabled={isPending}
         className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
         title="Archive"
+        aria-label="Archive"
       >
         <svg
           width="16"
@@ -84,6 +87,7 @@ export function ThreadToolbarActions({ threadId }: { threadId: string }) {
         disabled={isPending}
         className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
         title="Delete"
+        aria-label="Delete"
       >
         <svg
           width="16"
@@ -105,6 +109,7 @@ export function ThreadToolbarActions({ threadId }: { threadId: string }) {
         disabled={isPending}
         className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
         title="Mark unread"
+        aria-label="Mark unread"
       >
         <svg
           width="16"
@@ -174,6 +179,7 @@ export function ThreadSnoozeButton({ emailId }: { emailId: string }) {
         onClick={() => setShowSnooze((v) => !v)}
         className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
         title="Snooze"
+        aria-label="Snooze"
       >
         <svg
           width="16"
@@ -199,6 +205,53 @@ export function ThreadSnoozeButton({ emailId }: { emailId: string }) {
   );
 }
 
+/* ─── Thread Label Button ──────────────────────────────────────────────────── */
+
+export function ThreadLabelButton({
+  emailIds,
+  currentLabelIds,
+  labels,
+}: {
+  emailIds: string[];
+  currentLabelIds: string[];
+  labels: Array<{ id: string; name: string; color: string | null }>;
+}) {
+  const [showPicker, setShowPicker] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShowPicker((v) => !v)}
+        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+        title="Labels"
+        aria-label="Labels"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+          <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+        </svg>
+      </button>
+      {showPicker && (
+        <LabelPicker
+          emailIds={emailIds}
+          currentLabelIds={currentLabelIds}
+          labels={labels}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+    </div>
+  );
+}
+
 /* ─── Reply / Forward Buttons ────────────────────────────────────────────────── */
 
 interface ReplyForwardProps {
@@ -208,7 +261,6 @@ interface ReplyForwardProps {
   senderEmail: string;
   bodyHtml: string;
   sentAt: string;
-  toNames: string[];
 }
 
 export function ReplyButton({
@@ -226,7 +278,7 @@ export function ReplyButton({
     const quotedHtml = `
       <br><br>
       <div style="border-left: 2px solid #ccc; padding-left: 12px; color: #666;">
-        <p>On ${sentAt}, ${senderName} &lt;${senderEmail}&gt; wrote:</p>
+        <p>On ${escapeHtml(sentAt)}, ${escapeHtml(senderName)} &lt;${escapeHtml(senderEmail)}&gt; wrote:</p>
         ${bodyHtml}
       </div>
     `;
@@ -271,7 +323,7 @@ export function ForwardButton({
   senderEmail,
   bodyHtml,
   sentAt,
-}: Omit<ReplyForwardProps, "toNames">) {
+}: ReplyForwardProps) {
   const { openForward } = useCompose();
 
   const handleForward = () => {
@@ -280,9 +332,9 @@ export function ForwardButton({
       <br><br>
       <div>
         <p>---------- Forwarded message ----------</p>
-        <p>From: ${senderName} &lt;${senderEmail}&gt;</p>
-        <p>Date: ${sentAt}</p>
-        <p>Subject: ${subject}</p>
+        <p>From: ${escapeHtml(senderName)} &lt;${escapeHtml(senderEmail)}&gt;</p>
+        <p>Date: ${escapeHtml(sentAt)}</p>
+        <p>Subject: ${escapeHtml(subject)}</p>
         <br>
         ${bodyHtml}
       </div>

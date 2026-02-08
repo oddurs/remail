@@ -17,6 +17,7 @@ export function RefreshButton() {
       disabled={isPending}
       className={`rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50 ${isPending ? "animate-spin" : ""}`}
       title="Refresh"
+      aria-label="Refresh"
     >
       <svg
         width="16"

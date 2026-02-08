@@ -7,6 +7,7 @@ import {
   ThreadToolbarActions,
   StarButton,
   ThreadSnoozeButton,
+  ThreadLabelButton,
   ReplyButton,
   ForwardButton,
 } from "@/components/mail/thread-actions";
@@ -91,10 +92,19 @@ async function getThread(threadId: string) {
     }
   });
 
+  // Fetch all user labels for label picker
+  const { data: allUserLabels } = await supabase
+    .from("gmail_labels")
+    .select("id, name, color")
+    .eq("session_id", sessionId)
+    .eq("type", "user")
+    .order("position");
+
   return {
     thread,
     messages: messages ?? [],
     labels: Array.from(uniqueLabels.values()),
+    allLabels: allUserLabels ?? [],
   };
 }
 
@@ -110,7 +120,7 @@ export default async function ThreadPage({
     notFound();
   }
 
-  const { thread, messages, labels } = data;
+  const { thread, messages, labels, allLabels } = data;
 
   return (
     <div className="flex h-full flex-col">
@@ -119,6 +129,7 @@ export default async function ThreadPage({
         <Link
           href="/"
           className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+          aria-label="Back to inbox"
         >
           <svg
             width="18"
@@ -137,27 +148,15 @@ export default async function ThreadPage({
         <ThreadToolbarActions threadId={thread.id} />
 
         <ThreadSnoozeButton emailId={messages[0]?.id ?? thread.id} />
-        <button
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-          title="Labels"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-            <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
-          </svg>
-        </button>
+        <ThreadLabelButton
+          emailIds={messages.map((m) => m.id)}
+          currentLabelIds={labels.map((l) => l.id)}
+          labels={allLabels}
+        />
         <button
           className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
           title="More"
+          aria-label="More"
         >
           <svg
             width="16"
@@ -201,7 +200,7 @@ export default async function ThreadPage({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl space-y-4 px-6 py-4">
+        <div className="mx-auto max-w-4xl space-y-3 px-6 py-4">
           {messages.map((message, index) => {
             const contact = message.gmail_contacts;
             const senderName = contact?.is_self
@@ -222,7 +221,7 @@ export default async function ThreadPage({
             return (
               <div
                 key={message.id}
-                className="rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)]"
+                className="rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] shadow-[var(--shadow-xs)]"
               >
                 {/* Header */}
                 <div className="flex items-start gap-3 px-5 py-4">
@@ -253,6 +252,7 @@ export default async function ThreadPage({
                     <button
                       className="rounded-[var(--radius-full)] p-1 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]"
                       title="More"
+                      aria-label="More"
                     >
                       <svg
                         width="14"
@@ -286,7 +286,6 @@ export default async function ThreadPage({
                       senderEmail={senderEmail}
                       bodyHtml={message.body_html}
                       sentAt={formatRelativeDate(new Date(message.sent_at))}
-                      toNames={toNames}
                     />
                     <ForwardButton
                       threadId={thread.id}

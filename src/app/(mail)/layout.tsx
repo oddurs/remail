@@ -4,6 +4,7 @@ import { requireSessionId } from "@/lib/session";
 import { SidebarNav } from "./sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ComposeProvider } from "@/components/mail/compose-provider";
+import { SelectionProvider } from "@/components/mail/selection-provider";
 import { ComposeButton } from "./compose-button";
 import { ToastProvider } from "@/components/ui/toast";
 import { SearchBar } from "@/components/mail/search-bar";
@@ -80,6 +81,7 @@ export default async function MailLayout({
   return (
     <ToastProvider>
       <ComposeProvider defaultSignature={defaultSignature}>
+        <SelectionProvider>
         <div className="flex h-screen overflow-hidden">
           {/* Sidebar */}
           <aside className="flex w-[var(--sidebar-width)] shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)]">
@@ -102,7 +104,7 @@ export default async function MailLayout({
             {/* Topbar */}
             <header className="flex h-[var(--topbar-height)] shrink-0 items-center gap-4 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-4">
               {/* Hamburger */}
-              <button className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">
+              <button className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]" aria-label="Main menu">
                 <svg
                   width="20"
                   height="20"
@@ -128,14 +130,36 @@ export default async function MailLayout({
               </Suspense>
 
               {/* Right section */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 {/* Theme toggle */}
                 <ThemeToggle />
+
+                {/* Help */}
+                <button
+                  className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+                  aria-label="Help"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <path d="M12 17h.01" />
+                  </svg>
+                </button>
 
                 {/* Settings */}
                 <Link
                   href="/settings"
                   className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+                  aria-label="Settings"
                 >
                   <svg
                     width="20"
@@ -166,6 +190,7 @@ export default async function MailLayout({
           </div>
         </div>
         <KeyboardShortcuts />
+        </SelectionProvider>
       </ComposeProvider>
     </ToastProvider>
   );

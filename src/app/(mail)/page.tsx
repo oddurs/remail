@@ -2,7 +2,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
 import { EmailRow } from "@/components/mail/email-row";
-import { RefreshButton } from "./refresh-button";
+import { InboxToolbar } from "@/components/mail/inbox-toolbar";
 import Link from "next/link";
 
 async function getInboxEmails(category: string = "primary") {
@@ -113,109 +113,67 @@ export default async function InboxPage({
           value="primary"
           active={activeCategory === "primary"}
           count={categoryCounts.primary}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+              <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            </svg>
+          }
         />
         <CategoryTab
           label="Social"
           value="social"
           active={activeCategory === "social"}
           count={categoryCounts.social}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          }
         />
         <CategoryTab
           label="Promotions"
           value="promotions"
           active={activeCategory === "promotions"}
           count={categoryCounts.promotions}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+              <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+            </svg>
+          }
         />
         <CategoryTab
           label="Updates"
           value="updates"
           active={activeCategory === "updates"}
           count={categoryCounts.updates}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          }
         />
         <CategoryTab
           label="Forums"
           value="forums"
           active={activeCategory === "forums"}
           count={categoryCounts.forums}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
+            </svg>
+          }
         />
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center gap-2 border-b border-[var(--color-border-subtle)] px-4 py-2">
-        {/* Select all checkbox */}
-        <button className="rounded-[var(--radius-xs)] p-1 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-          </svg>
-        </button>
-
-        {/* Refresh */}
-        <RefreshButton />
-
-        {/* More */}
-        <button className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="19" cy="12" r="1" />
-            <circle cx="5" cy="12" r="1" />
-          </svg>
-        </button>
-
-        <div className="flex-1" />
-
-        {/* Pagination */}
-        <span className="text-xs text-[var(--color-text-tertiary)]">
-          {totalCount > 0
-            ? `1\u2013${totalCount} of ${totalCount}`
-            : "No conversations"}
-        </span>
-        <button className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </button>
-        <button className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
-      </div>
+      <InboxToolbar totalCount={totalCount} allEmailIds={threadEmails.map(e => e.id)} />
 
       {/* Email list */}
       {threadEmails.length === 0 ? (
@@ -295,11 +253,13 @@ function CategoryTab({
   value,
   active = false,
   count = 0,
+  icon,
 }: {
   label: string;
   value: string;
   active?: boolean;
   count?: number;
+  icon?: React.ReactNode;
 }) {
   return (
     <Link
@@ -313,6 +273,7 @@ function CategoryTab({
         }
       `}
     >
+      {icon}
       {label}
       {count > 0 && (
         <span

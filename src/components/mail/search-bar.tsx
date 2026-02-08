@@ -32,6 +32,7 @@ export function SearchBar() {
         <button
           type="submit"
           className="shrink-0 text-[var(--color-text-secondary)]"
+          aria-label="Search"
         >
           <svg
             width="18"
@@ -60,6 +61,7 @@ export function SearchBar() {
             type="button"
             onClick={handleClear}
             className="shrink-0 rounded-[var(--radius-full)] p-0.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+            aria-label="Clear search"
           >
             <svg
               width="16"

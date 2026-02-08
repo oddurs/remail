@@ -56,6 +56,25 @@ export function htmlToSnippet(html: string, maxLength = 140): string {
 }
 
 /**
+ * Escape HTML special characters to prevent XSS.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * Escape special characters in a LIKE/ILIKE pattern.
+ */
+export function escapeLikePattern(str: string): string {
+  return str.replace(/[%_\\]/g, "\\$&");
+}
+
+/**
  * Format byte size to human-readable string.
  */
 export function formatFileSize(bytes: number): string {

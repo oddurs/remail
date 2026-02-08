@@ -101,6 +101,8 @@ export function SnoozePicker({
     <div
       ref={ref}
       className="absolute right-0 top-full z-[var(--z-dropdown)] mt-1 w-64 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]"
+      role="menu"
+      aria-label="Snooze options"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -115,6 +117,7 @@ export function SnoozePicker({
           key={preset.label}
           onClick={() => handleSnooze(preset.date)}
           disabled={isPending}
+          role="menuitem"
           className="flex w-full items-center justify-between px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] disabled:opacity-50"
         >
           <span>{preset.label}</span>
@@ -127,6 +130,7 @@ export function SnoozePicker({
       {!showCustom ? (
         <button
           onClick={() => setShowCustom(true)}
+          role="menuitem"
           className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -137,19 +141,27 @@ export function SnoozePicker({
         </button>
       ) : (
         <div className="space-y-2 px-3 py-2">
-          <input
-            type="date"
-            value={customDate}
-            onChange={(e) => setCustomDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
-            className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-2 py-1.5 text-sm text-[var(--color-text-primary)]"
-          />
-          <input
-            type="time"
-            value={customTime}
-            onChange={(e) => setCustomTime(e.target.value)}
-            className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-2 py-1.5 text-sm text-[var(--color-text-primary)]"
-          />
+          <div>
+            <label htmlFor="snooze-date" className="mb-1 block text-xs text-[var(--color-text-tertiary)]">Date</label>
+            <input
+              id="snooze-date"
+              type="date"
+              value={customDate}
+              onChange={(e) => setCustomDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-2 py-1.5 text-sm text-[var(--color-text-primary)]"
+            />
+          </div>
+          <div>
+            <label htmlFor="snooze-time" className="mb-1 block text-xs text-[var(--color-text-tertiary)]">Time</label>
+            <input
+              id="snooze-time"
+              type="time"
+              value={customTime}
+              onChange={(e) => setCustomTime(e.target.value)}
+              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-primary)] px-2 py-1.5 text-sm text-[var(--color-text-primary)]"
+            />
+          </div>
           <button
             onClick={handleCustomSnooze}
             disabled={isPending || !customDate}
