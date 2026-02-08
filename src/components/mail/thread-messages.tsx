@@ -10,6 +10,7 @@ import {
   ForwardButton,
   MessageMoreMenu,
 } from "@/components/mail/thread-actions";
+import { useCompose } from "@/components/mail/compose-provider";
 
 /* ─── Types ──────────────────────────────────────────────────────────────────── */
 
@@ -27,6 +28,7 @@ interface Message {
   is_read: boolean;
   is_starred: boolean;
   is_draft: boolean;
+  suggested_replies: unknown;
   from_contact_id: string;
   gmail_contacts: {
     id: string;
@@ -379,8 +381,60 @@ function ExpandedMessage({
               </button>
             </div>
           )}
+
+          {/* Suggested reply chips */}
+          {isLast && !message.is_draft && <SuggestedReplies
+            message={message}
+            senderEmail={senderEmail}
+            threadId={threadId}
+            threadSubject={threadSubject}
+          />}
         </motion.div>
       </AnimatePresence>
+    </div>
+  );
+}
+
+/* ─── Suggested Reply Chips ──────────────────────────────────────────────────── */
+
+function SuggestedReplies({
+  message,
+  senderEmail,
+  threadId,
+  threadSubject,
+}: {
+  message: Message;
+  senderEmail: string;
+  threadId: string;
+  threadSubject: string;
+}) {
+  const { openReply } = useCompose();
+
+  const replies = Array.isArray(message.suggested_replies)
+    ? (message.suggested_replies as string[])
+    : [];
+
+  if (replies.length === 0) return null;
+
+  return (
+    <div className="mx-5 mb-4 ml-[4.25rem] flex flex-wrap gap-2">
+      {replies.map((reply, i) => (
+        <button
+          key={i}
+          onClick={() =>
+            openReply({
+              to: [{ id: "", name: "", email: senderEmail }],
+              subject: `Re: ${threadSubject}`,
+              bodyHtml: `<p>${reply}</p>`,
+              threadId,
+              inReplyToEmailId: message.id,
+            })
+          }
+          className="rounded-[var(--radius-full)] border border-[var(--color-accent-primary)]/30 px-3 py-1.5 text-sm text-[var(--color-accent-primary)] transition-colors hover:bg-[var(--color-accent-subtle)]"
+        >
+          {reply}
+        </button>
+      ))}
     </div>
   );
 }

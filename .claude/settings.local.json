@@ -30,7 +30,16 @@
       "Bash(pgrep:*)",
       "Bash(python3:*)",
       "Bash(PYTHONPATH=. python3:*)",
-      "Bash(CLAUDE_PLUGIN_ROOT=/Users/oddurs/.claude/plugins/marketplaces/claude-plugins-official/plugins/hookify python3:*)"
+      "Bash(CLAUDE_PLUGIN_ROOT=/Users/oddurs/.claude/plugins/marketplaces/claude-plugins-official/plugins/hookify python3:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "WebSearch",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npx supabase:*)",
+      "Bash(supabase db execute:*)",
+      "Bash(# Try finding supabase config find ~ -maxdepth 3 -name \"\"settings.json\"\" -path \"\"*supabase*\"\" || true find ~ -maxdepth 3 -name \"\"*access*\"\" -path \"\"*supabase*\"\" || true find ~ -maxdepth 3 -name \"\"*.toml\"\" -path \"\"*supabase*\"\")"
     ]
   }
 }

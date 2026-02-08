@@ -187,8 +187,8 @@ export function ComposeModal({
           transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           className="fixed bottom-0 right-6 z-[var(--z-compose)] w-[560px]"
         >
-          <div className="rounded-t-[var(--radius-md)] bg-[var(--color-bg-elevated)] px-4 py-3 shadow-[var(--shadow-xl)] border border-[var(--color-border-default)] border-b-0">
-            <span className="text-sm text-[var(--color-text-primary)]">
+          <div className="rounded-t-lg bg-white px-4 py-3 shadow-2xl border border-gray-300 border-b-0 dark:bg-gray-900 dark:border-gray-700">
+            <span className="text-sm text-gray-900 dark:text-gray-100">
               Message sent.
             </span>
           </div>
@@ -203,60 +203,52 @@ export function ComposeModal({
           exit={{ opacity: 0, y: 20, scale: 0.97 }}
           transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           className={cn(
-            "fixed bottom-0 right-6 z-[var(--z-compose)] flex flex-col rounded-t-[var(--radius-md)] border border-b-0 border-[var(--color-border-default)] bg-[var(--color-compose-bg)] shadow-[var(--shadow-xl)]",
-            minimized ? "w-72" : "w-[560px]",
+            "fixed bottom-0 right-6 z-[var(--z-compose)] flex flex-col rounded-t-lg border border-b-0 border-gray-300 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900",
+            minimized ? "w-72" : "w-[580px]",
           )}
         >
           {/* Header */}
           <div
-            className="flex shrink-0 cursor-pointer items-center justify-between rounded-t-[var(--radius-md)] bg-[var(--color-compose-header)] px-4 py-3"
+            className="flex shrink-0 cursor-pointer items-center justify-between rounded-t-lg bg-gray-800 px-3 py-[9px] dark:bg-gray-950"
             onClick={() => setMinimized(!minimized)}
           >
-            <span className="text-sm font-medium text-white truncate">
+            <span className="text-[13px] font-medium text-gray-100 truncate pr-4">
               {state.subject || "New Message"}
             </span>
-            <div className="flex items-center gap-0.5">
-              {/* Minimize */}
+            <div className="flex items-center gap-1">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setMinimized(!minimized);
                 }}
-                className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
+                className="rounded p-1 text-gray-400 hover:text-gray-200 hover:bg-white/10 transition-colors"
                 aria-label={minimized ? "Expand" : "Minimize"}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14" />
                 </svg>
               </button>
-              {/* Close */}
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="rounded p-1 text-gray-400 hover:text-gray-200 hover:bg-white/10 transition-colors"
+                aria-label="Full screen"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" x2="14" y1="3" y2="10" />
+                  <line x1="3" x2="10" y1="21" y2="14" />
+                </svg>
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDiscard();
                 }}
-                className="rounded-[var(--radius-full)] p-1 text-white/80 hover:bg-white/10"
+                className="rounded p-1 text-gray-400 hover:text-gray-200 hover:bg-white/10 transition-colors"
                 aria-label="Close"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6 6 18" />
                   <path d="m6 6 12 12" />
                 </svg>
@@ -275,7 +267,7 @@ export function ComposeModal({
                 style={{ overflow: "hidden" }}
               >
                 {/* Recipients */}
-                <div className="border-b border-[var(--color-border-subtle)]">
+                <div className="border-b border-gray-200 dark:border-gray-700/60">
                   <RecipientField
                     label="To"
                     contacts={state.to}
@@ -284,11 +276,11 @@ export function ComposeModal({
                       scheduleSave();
                     }}
                     suffix={
-                      <div className="flex gap-1 text-xs text-[var(--color-text-tertiary)]">
+                      <div className="flex gap-2 text-xs font-medium text-gray-400 dark:text-gray-500">
                         {!showCc && (
                           <button
                             onClick={() => setShowCc(true)}
-                            className="hover:text-[var(--color-text-secondary)]"
+                            className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                           >
                             Cc
                           </button>
@@ -296,7 +288,7 @@ export function ComposeModal({
                         {!showBcc && (
                           <button
                             onClick={() => setShowBcc(true)}
-                            className="hover:text-[var(--color-text-secondary)]"
+                            className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                           >
                             Bcc
                           </button>
@@ -305,29 +297,33 @@ export function ComposeModal({
                     }
                   />
                   {showCc && (
-                    <RecipientField
-                      label="Cc"
-                      contacts={state.cc}
-                      onChange={(cc) => {
-                        setState((prev) => ({ ...prev, cc }));
-                        scheduleSave();
-                      }}
-                    />
+                    <div className="border-t border-gray-100 dark:border-gray-800">
+                      <RecipientField
+                        label="Cc"
+                        contacts={state.cc}
+                        onChange={(cc) => {
+                          setState((prev) => ({ ...prev, cc }));
+                          scheduleSave();
+                        }}
+                      />
+                    </div>
                   )}
                   {showBcc && (
-                    <RecipientField
-                      label="Bcc"
-                      contacts={state.bcc}
-                      onChange={(bcc) => {
-                        setState((prev) => ({ ...prev, bcc }));
-                        scheduleSave();
-                      }}
-                    />
+                    <div className="border-t border-gray-100 dark:border-gray-800">
+                      <RecipientField
+                        label="Bcc"
+                        contacts={state.bcc}
+                        onChange={(bcc) => {
+                          setState((prev) => ({ ...prev, bcc }));
+                          scheduleSave();
+                        }}
+                      />
+                    </div>
                   )}
                 </div>
 
                 {/* Subject */}
-                <div className="border-b border-[var(--color-border-subtle)]">
+                <div className="border-b border-gray-200 dark:border-gray-700/60">
                   <input
                     type="text"
                     placeholder="Subject"
@@ -336,7 +332,7 @@ export function ComposeModal({
                       setState((prev) => ({ ...prev, subject: e.target.value }));
                       scheduleSave();
                     }}
-                    className="w-full bg-transparent px-4 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] outline-none"
+                    className="w-full bg-transparent px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none dark:text-gray-100 dark:placeholder:text-gray-500"
                   />
                 </div>
 
@@ -346,158 +342,181 @@ export function ComposeModal({
                   contentEditable
                   suppressContentEditableWarning
                   onInput={handleBodyInput}
-                  className="min-h-[200px] max-h-[400px] flex-1 overflow-y-auto px-4 py-3 text-sm leading-relaxed text-[var(--color-text-primary)] outline-none [&_a]:text-[var(--color-accent-primary)] [&_a]:underline"
+                  className="min-h-[320px] max-h-[480px] flex-1 overflow-y-auto px-4 py-3 text-sm leading-relaxed text-gray-800 outline-none dark:text-gray-200 [&_a]:text-blue-600 [&_a]:underline dark:[&_a]:text-blue-400"
                   dangerouslySetInnerHTML={{ __html: state.bodyHtml }}
                 />
 
-                {/* Toolbar */}
-                <div className="flex shrink-0 items-center gap-1 border-t border-[var(--color-border-subtle)] px-3 py-2">
+                {/* Formatting toolbar */}
+                <div className="flex shrink-0 items-center gap-0.5 border-t border-gray-200 bg-gray-50/80 px-2 py-1 dark:border-gray-700/60 dark:bg-gray-800/40">
+                  <FormatButton title="Undo" onClick={() => document.execCommand("undo")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7v6h6" /><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+                    </svg>
+                  </FormatButton>
+                  <FormatButton title="Redo" onClick={() => document.execCommand("redo")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 7v6h-6" /><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+                    </svg>
+                  </FormatButton>
+
+                  <div className="mx-1.5 h-4 w-px bg-gray-300 dark:bg-gray-600" />
+
+                  <FormatButton title="Bold" onClick={() => document.execCommand("bold")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                      <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                    </svg>
+                  </FormatButton>
+                  <FormatButton title="Italic" onClick={() => document.execCommand("italic")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="19" x2="10" y1="4" y2="4" /><line x1="14" x2="5" y1="20" y2="20" /><line x1="15" x2="9" y1="4" y2="20" />
+                    </svg>
+                  </FormatButton>
+                  <FormatButton title="Underline" onClick={() => document.execCommand("underline")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 4v6a6 6 0 0 0 12 0V4" /><line x1="4" x2="20" y1="20" y2="20" />
+                    </svg>
+                  </FormatButton>
+
+                  <div className="mx-1.5 h-4 w-px bg-gray-300 dark:bg-gray-600" />
+
+                  <FormatButton title="Text color" onClick={() => {}}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 20h16" /><path d="m8 4 4 12 4-12" />
+                    </svg>
+                  </FormatButton>
+
+                  <div className="mx-1.5 h-4 w-px bg-gray-300 dark:bg-gray-600" />
+
+                  <FormatButton title="Align" onClick={() => {}}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="21" x2="3" y1="6" y2="6" /><line x1="15" x2="3" y1="12" y2="12" /><line x1="17" x2="3" y1="18" y2="18" />
+                    </svg>
+                  </FormatButton>
+
+                  <div className="mx-1.5 h-4 w-px bg-gray-300 dark:bg-gray-600" />
+
+                  <FormatButton title="Bulleted list" onClick={() => document.execCommand("insertUnorderedList")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="8" x2="21" y1="6" y2="6" /><line x1="8" x2="21" y1="12" y2="12" /><line x1="8" x2="21" y1="18" y2="18" />
+                      <line x1="3" x2="3.01" y1="6" y2="6" /><line x1="3" x2="3.01" y1="12" y2="12" /><line x1="3" x2="3.01" y1="18" y2="18" />
+                    </svg>
+                  </FormatButton>
+                  <FormatButton title="Numbered list" onClick={() => document.execCommand("insertOrderedList")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="10" x2="21" y1="6" y2="6" /><line x1="10" x2="21" y1="12" y2="12" /><line x1="10" x2="21" y1="18" y2="18" />
+                      <path d="M4 6h1v4" /><path d="M4 10h2" /><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
+                    </svg>
+                  </FormatButton>
+
+                  <div className="mx-1.5 h-4 w-px bg-gray-300 dark:bg-gray-600" />
+
+                  <FormatButton title="Indent less" onClick={() => document.execCommand("outdent")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="7 8 3 12 7 16" /><line x1="21" x2="11" y1="12" y2="12" /><line x1="21" x2="11" y1="6" y2="6" /><line x1="21" x2="11" y1="18" y2="18" />
+                    </svg>
+                  </FormatButton>
+                  <FormatButton title="Indent more" onClick={() => document.execCommand("indent")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 8 7 12 3 16" /><line x1="21" x2="11" y1="12" y2="12" /><line x1="21" x2="11" y1="6" y2="6" /><line x1="21" x2="11" y1="18" y2="18" />
+                    </svg>
+                  </FormatButton>
+
+                  <div className="mx-1.5 h-4 w-px bg-gray-300 dark:bg-gray-600" />
+
+                  <FormatButton title="Remove formatting" onClick={() => document.execCommand("removeFormat")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m7 21 4-9" /><path d="M3 3h12l-2.5 6" /><line x1="2" x2="22" y1="2" y2="22" />
+                    </svg>
+                  </FormatButton>
+                </div>
+
+                {/* Bottom action bar */}
+                <div className="flex shrink-0 items-center gap-1 bg-gray-50/50 px-3 py-2 dark:bg-gray-800/30">
                   {/* Send button */}
                   <button
                     onClick={handleSend}
                     disabled={isSending || state.to.length === 0}
                     className={cn(
-                      "rounded-[var(--radius-full)] px-5 py-1.5 text-sm font-medium transition-[var(--transition-fast)]",
+                      "rounded-full px-6 py-[7px] text-[13px] font-semibold tracking-wide transition-all",
                       state.to.length === 0 || isSending
-                        ? "bg-[var(--color-bg-tertiary)] text-[var(--color-text-tertiary)] cursor-not-allowed"
-                        : "bg-[var(--color-accent-primary)] text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-hover)]",
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500"
+                        : "bg-[#0b57d0] text-white hover:bg-[#0842a0] hover:shadow-md active:scale-[0.98] dark:bg-[#a8c7fa] dark:text-[#062e6f] dark:hover:bg-[#93b2e5]",
                     )}
                   >
                     {isSending ? "Sending..." : "Send"}
                   </button>
 
-                  {/* Formatting toolbar */}
-                  <div className="flex items-center gap-0.5 ml-1">
-                    <FormatButton
-                      title="Bold"
-                      onClick={() => document.execCommand("bold")}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-                        <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+                  {/* Send options chevron */}
+                  <button
+                    disabled={isSending || state.to.length === 0}
+                    className={cn(
+                      "rounded-full p-1.5 transition-colors",
+                      state.to.length === 0 || isSending
+                        ? "text-gray-300 cursor-not-allowed dark:text-gray-600"
+                        : "text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700",
+                    )}
+                    aria-label="Send options"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+
+                  <div className="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700" />
+
+                  {/* Action icons */}
+                  <div className="flex items-center gap-0.5">
+                    <BottomBarButton title="Formatting options">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="4 7 4 4 20 4 20 7" /><line x1="9" x2="15" y1="20" y2="20" /><line x1="12" x2="12" y1="4" y2="20" />
                       </svg>
-                    </FormatButton>
-                    <FormatButton
-                      title="Italic"
-                      onClick={() => document.execCommand("italic")}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="19" x2="10" y1="4" y2="4" />
-                        <line x1="14" x2="5" y1="20" y2="20" />
-                        <line x1="15" x2="9" y1="4" y2="20" />
+                    </BottomBarButton>
+                    <BottomBarButton title="Attach files">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
                       </svg>
-                    </FormatButton>
-                    <FormatButton
-                      title="Underline"
-                      onClick={() => document.execCommand("underline")}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M6 4v6a6 6 0 0 0 12 0V4" />
-                        <line x1="4" x2="20" y1="20" y2="20" />
+                    </BottomBarButton>
+                    <BottomBarButton title="Insert link">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                       </svg>
-                    </FormatButton>
-                    <FormatButton
-                      title="Bulleted list"
-                      onClick={() => document.execCommand("insertUnorderedList")}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="8" x2="21" y1="6" y2="6" />
-                        <line x1="8" x2="21" y1="12" y2="12" />
-                        <line x1="8" x2="21" y1="18" y2="18" />
-                        <line x1="3" x2="3.01" y1="6" y2="6" />
-                        <line x1="3" x2="3.01" y1="12" y2="12" />
-                        <line x1="3" x2="3.01" y1="18" y2="18" />
+                    </BottomBarButton>
+                    <BottomBarButton title="Insert emoji">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" x2="9.01" y1="9" y2="9" /><line x1="15" x2="15.01" y1="9" y2="9" />
                       </svg>
-                    </FormatButton>
-                    <FormatButton
-                      title="Numbered list"
-                      onClick={() => document.execCommand("insertOrderedList")}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="10" x2="21" y1="6" y2="6" />
-                        <line x1="10" x2="21" y1="12" y2="12" />
-                        <line x1="10" x2="21" y1="18" y2="18" />
-                        <path d="M4 6h1v4" />
-                        <path d="M4 10h2" />
-                        <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
+                    </BottomBarButton>
+                    <BottomBarButton title="Insert photo">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                       </svg>
-                    </FormatButton>
+                    </BottomBarButton>
+                    <BottomBarButton title="More options">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+                      </svg>
+                    </BottomBarButton>
                   </div>
 
                   <div className="flex-1" />
 
-                  {/* Saving indicator */}
                   {isSaving && (
-                    <span className="text-xs text-[var(--color-text-tertiary)]">
+                    <span className="text-[11px] text-gray-400 dark:text-gray-500">
                       Saving...
                     </span>
                   )}
 
-                  {/* Delete draft */}
+                  {/* Discard */}
                   <button
                     onClick={handleDiscard}
-                    className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+                    className="rounded p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300"
                     title="Discard draft"
                     aria-label="Discard draft"
                   >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 6h18" />
-                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                     </svg>
                   </button>
                 </div>
@@ -627,32 +646,24 @@ function RecipientField({
   );
 
   return (
-    <div className="relative flex items-start gap-1 px-4 py-1.5">
-      <span className="shrink-0 py-0.5 text-sm text-[var(--color-text-tertiary)]">
+    <div className="relative flex items-start gap-1 px-4 py-2">
+      <span className="shrink-0 py-0.5 text-sm text-gray-500 dark:text-gray-400">
         {label}
       </span>
-      <div className="flex flex-1 flex-wrap items-center gap-1">
+      <div className="flex flex-1 flex-wrap items-center gap-1.5">
         {contacts.map((contact) => (
           <span
             key={contact.email}
-            className="flex items-center gap-1 rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] px-2 py-0.5 text-xs text-[var(--color-text-primary)]"
+            className="flex items-center gap-1 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
           >
             {contact.name || contact.email}
             <button
               onClick={() => removeContact(contact.email)}
-              className="ml-0.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]"
+              className="ml-0.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
               aria-label={`Remove ${contact.name || contact.email}`}
             >
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-              >
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <path d="M18 6 6 18" /><path d="m6 6 12 12" />
               </svg>
             </button>
           </span>
@@ -667,13 +678,12 @@ function RecipientField({
           }}
           onKeyDown={handleKeyDown}
           onBlur={() => {
-            // Delay to allow click on suggestion
             setTimeout(() => {
               setShowSuggestions(false);
               addFromInput();
             }, 200);
           }}
-          className="min-w-[120px] flex-1 bg-transparent py-0.5 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)]"
+          className="min-w-[120px] flex-1 bg-transparent py-0.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
           placeholder={contacts.length === 0 ? "Recipients" : ""}
         />
       </div>
@@ -681,7 +691,7 @@ function RecipientField({
 
       {/* Suggestions dropdown */}
       {showSuggestions && (
-        <div className="absolute left-12 top-full z-[var(--z-dropdown)] mt-1 w-80 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] py-1 shadow-[var(--shadow-lg)]">
+        <div className="absolute left-12 top-full z-[var(--z-dropdown)] mt-1 w-80 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900">
           {suggestions.map((contact, index) => (
             <button
               key={contact.id}
@@ -690,24 +700,24 @@ function RecipientField({
                 addContact(contact);
               }}
               className={cn(
-                "flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-[var(--transition-fast)]",
+                "flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors",
                 index === selectedIndex
-                  ? "bg-[var(--color-bg-hover)]"
-                  : "hover:bg-[var(--color-bg-hover)]",
+                  ? "bg-gray-100 dark:bg-gray-800"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-800/60",
               )}
             >
               {contact.avatarUrl ? (
-                <img src={contact.avatarUrl} alt="" className="h-7 w-7 shrink-0 rounded-[var(--radius-full)] object-cover" />
+                <img src={contact.avatarUrl} alt="" className="h-7 w-7 shrink-0 rounded-full object-cover" />
               ) : (
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-bg-tertiary)] text-xs font-medium text-[var(--color-text-secondary)]">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-400">
                   {contact.name.charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium text-[var(--color-text-primary)]">
+                <div className="truncate font-medium text-gray-900 dark:text-gray-100">
                   {contact.name}
                 </div>
-                <div className="truncate text-xs text-[var(--color-text-tertiary)]">
+                <div className="truncate text-xs text-gray-500 dark:text-gray-400">
                   {contact.email}
                 </div>
               </div>
@@ -719,7 +729,7 @@ function RecipientField({
   );
 }
 
-/* ─── Format Button ──────────────────────────────────────────────────────────── */
+/* ─── Toolbar Buttons ─────────────────────────────────────────────────────── */
 
 function FormatButton({
   title,
@@ -736,10 +746,29 @@ function FormatButton({
       title={title}
       aria-label={title}
       onMouseDown={(e) => {
-        e.preventDefault(); // Prevent focus loss from contentEditable
+        e.preventDefault();
         onClick();
       }}
-      className="rounded-[var(--radius-xs)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+      className="rounded p-1.5 text-gray-500 hover:bg-gray-200/70 hover:text-gray-700 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+    >
+      {children}
+    </button>
+  );
+}
+
+function BottomBarButton({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      aria-label={title}
+      className="rounded-full p-[6px] text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
     >
       {children}
     </button>

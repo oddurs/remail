@@ -29,13 +29,14 @@ const USER_LABELS = [
 export async function seedSession(sessionId: string): Promise<void> {
   const supabase = createServiceClient();
 
-  // 1. Create "self" contact (the session user)
+  // 1. Create "self" contact (the session user — Neil Lawner)
   const { data: selfContact, error: selfError } = await supabase
     .from("gmail_contacts")
     .insert({
       session_id: sessionId,
-      name: "Me",
-      email: "guest@gmail-redesign.app",
+      name: "Neil Lawner",
+      email: "neil.lawner@gmail.com",
+      avatar_url: "https://i.pravatar.cc/150?u=neil.lawner@gmail.com",
       is_self: true,
     })
     .select("id")
@@ -107,6 +108,16 @@ export async function seedSession(sessionId: string): Promise<void> {
   // 5. Create threads and emails
   const now = new Date();
 
+  // Resolve relative snooze strings like "+3d" or "+12h" to absolute ISO dates
+  function resolveSnooze(relative: string): string {
+    const match = relative.match(/^\+(\d+)([dh])$/);
+    if (!match) return new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const amount = parseInt(match[1], 10);
+    const unit = match[2];
+    const ms = unit === "d" ? amount * 24 * 60 * 60 * 1000 : amount * 60 * 60 * 1000;
+    return new Date(now.getTime() + ms).toISOString();
+  }
+
   for (let tIdx = 0; tIdx < EMAIL_TEMPLATES.length; tIdx++) {
     const template = EMAIL_TEMPLATES[tIdx];
     const isDraft = tIdx === DRAFT_TEMPLATE_INDEX;
@@ -123,6 +134,7 @@ export async function seedSession(sessionId: string): Promise<void> {
         subject: template.subject,
         last_message_at: lastMessageTime.toISOString(),
         message_count: template.messages.length,
+        summary: template.summary ?? null,
       })
       .select("id")
       .single();
@@ -143,6 +155,8 @@ export async function seedSession(sessionId: string): Promise<void> {
 
       const isLastMessage = msg === lastMessage;
 
+      const isSnoozed = !!template.snoozeUntil;
+
       const { data: email, error: emailError } = await supabase
         .from("gmail_emails")
         .insert({
@@ -158,10 +172,14 @@ export async function seedSession(sessionId: string): Promise<void> {
           is_read: msg.isRead,
           is_starred: isLastMessage ? (template.isStarred ?? false) : false,
           is_important: isLastMessage ? (template.isImportant ?? false) : false,
-          is_spam: false,
-          is_trash: false,
-          is_archived: false,
+          is_spam: template.isSpam ?? false,
+          is_trash: template.isTrash ?? false,
+          is_archived: isSnoozed,
+          snooze_until: isSnoozed ? resolveSnooze(template.snoozeUntil!) : null,
           category: template.category,
+          category_confidence: template.categoryConfidence ?? 0.95,
+          priority_score: template.priorityScore ?? 0.5,
+          suggested_replies: (isLastMessage && template.suggestedReplies) ? template.suggestedReplies : null,
         })
         .select("id")
         .single();
@@ -213,7 +231,7 @@ export async function seedSession(sessionId: string): Promise<void> {
     session_id: sessionId,
     name: "Default",
     body_html:
-      "<p>Best regards,<br>Guest User</p><p style='color: #666; font-size: 12px;'>Sent from Gmail Redesign</p>",
+      "<p>Best regards,<br>Neil Lawner</p><p style='color: #666; font-size: 12px;'>Sent from Gmail Redesign</p>",
     is_default: true,
   });
 

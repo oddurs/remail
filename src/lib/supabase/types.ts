@@ -159,6 +159,7 @@ export type Database = {
           body_html: string;
           body_text: string;
           category: string;
+          category_confidence: number;
           created_at: string;
           from_contact_id: string;
           fts: unknown;
@@ -170,17 +171,20 @@ export type Database = {
           is_spam: boolean;
           is_starred: boolean;
           is_trash: boolean;
+          priority_score: number;
           sent_at: string;
           session_id: string;
           snippet: string;
           snooze_until: string | null;
           subject: string;
+          suggested_replies: Json | null;
           thread_id: string;
         };
         Insert: {
           body_html?: string;
           body_text?: string;
           category?: string;
+          category_confidence?: number;
           created_at?: string;
           from_contact_id: string;
           id?: string;
@@ -191,17 +195,20 @@ export type Database = {
           is_spam?: boolean;
           is_starred?: boolean;
           is_trash?: boolean;
+          priority_score?: number;
           sent_at?: string;
           session_id: string;
           snippet?: string;
           snooze_until?: string | null;
           subject: string;
+          suggested_replies?: Json | null;
           thread_id: string;
         };
         Update: {
           body_html?: string;
           body_text?: string;
           category?: string;
+          category_confidence?: number;
           created_at?: string;
           from_contact_id?: string;
           id?: string;
@@ -212,11 +219,13 @@ export type Database = {
           is_spam?: boolean;
           is_starred?: boolean;
           is_trash?: boolean;
+          priority_score?: number;
           sent_at?: string;
           session_id?: string;
           snippet?: string;
           snooze_until?: string | null;
           subject?: string;
+          suggested_replies?: Json | null;
           thread_id?: string;
         };
         Relationships: [
@@ -466,6 +475,7 @@ export type Database = {
           message_count: number;
           session_id: string;
           subject: string;
+          summary: string | null;
         };
         Insert: {
           created_at?: string;
@@ -475,6 +485,7 @@ export type Database = {
           message_count?: number;
           session_id: string;
           subject: string;
+          summary?: string | null;
         };
         Update: {
           created_at?: string;
@@ -484,6 +495,7 @@ export type Database = {
           message_count?: number;
           session_id?: string;
           subject?: string;
+          summary?: string | null;
         };
         Relationships: [
           {

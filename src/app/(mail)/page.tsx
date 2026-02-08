@@ -25,6 +25,7 @@ async function getInboxEmails(category: string = "primary") {
       is_important,
       is_draft,
       category,
+      priority_score,
       from_contact_id,
       gmail_contacts!gmail_emails_from_contact_id_fkey (
         id,
@@ -241,6 +242,7 @@ export default async function InboxPage({
                       name: l.name,
                       color: l.color ?? "#666",
                     }))}
+                    priorityScore={email.priority_score}
                   />
                 </AnimatedRow>
               );

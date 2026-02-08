@@ -27,6 +27,7 @@ export function EmailRow({
   important = false,
   isDraft = false,
   labels = [],
+  priorityScore,
 }: {
   emailId: string;
   threadId: string;
@@ -40,6 +41,7 @@ export function EmailRow({
   important?: boolean;
   isDraft?: boolean;
   labels?: Array<{ name: string; color: string }>;
+  priorityScore?: number;
 }) {
   const [isStarPending, startStarTransition] = useTransition();
   const [isActionPending, startActionTransition] = useTransition();
@@ -105,6 +107,7 @@ export function EmailRow({
         ${selected ? "bg-[var(--color-accent-subtle)]" : unread ? "bg-[var(--color-unread-bg)]" : "bg-[var(--color-read-bg)]"}
         hover:z-[1] hover:shadow-[var(--shadow-sm)]
         ${isActionPending ? "opacity-50" : ""}
+        ${priorityScore != null && priorityScore >= 0.8 ? "border-l-2 border-l-[var(--color-accent-primary)]" : ""}
       `}
     >
       {/* Checkbox */}

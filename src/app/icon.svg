@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Envelope body -->
+  <rect x="1" y="5" width="30" height="23" rx="4" fill="transparent"/>
+  <!-- Left panel — blue -->
+  <path d="M1 9C1 6.79 2.79 5 5 5H9V14.5L1 9Z" fill="#4285F4"/>
+  <path d="M1 9V24C1 26.21 2.79 28 5 28H9V14.5L1 9Z" fill="#4285F4" opacity="0.8"/>
+  <!-- Right panel — green -->
+  <path d="M31 9C31 6.79 29.21 5 27 5H23V14.5L31 9Z" fill="#34A853"/>
+  <path d="M31 9V24C31 26.21 29.21 28 27 28H23V14.5L31 9Z" fill="#34A853" opacity="0.8"/>
+  <!-- Top-left flap — red -->
+  <path d="M5 5C2.79 5 1 6.79 1 9L9 14.5V5H5Z" fill="#EA4335"/>
+  <!-- Top-right flap — yellow -->
+  <path d="M27 5C29.21 5 31 6.79 31 9L23 14.5V5H27Z" fill="#FBBC04"/>
+  <!-- Center chevron — red -->
+  <path d="M9 5H23V14.5L16 20L9 14.5V5Z" fill="#EA4335"/>
+</svg>

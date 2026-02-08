@@ -41,6 +41,7 @@ export async function getEmailList(filter: EmailListFilter) {
       is_spam,
       is_trash,
       category,
+      priority_score,
       from_contact_id,
       gmail_contacts!gmail_emails_from_contact_id_fkey (
         id, name, email, is_self, avatar_url
@@ -134,6 +135,7 @@ export async function getEmailList(filter: EmailListFilter) {
         is_spam,
         is_trash,
         category,
+        priority_score,
         from_contact_id,
         gmail_contacts!gmail_emails_from_contact_id_fkey (
           id, name, email, is_self, avatar_url

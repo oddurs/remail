@@ -1,6 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Monitor, Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 type ThemeMode = "system" | "light" | "dark";
 
@@ -54,77 +63,40 @@ export function ThemeToggle() {
   }, [mode]);
 
   return (
-    <button
-      onClick={cycle}
-      className="relative flex items-center justify-center rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] transition-[var(--transition-fast)] hover:bg-[var(--color-bg-hover)]"
-      aria-label={`Theme: ${mode}. Click to switch.`}
-      title={`Theme: ${mode}`}
-    >
-      {/* System */}
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`absolute transition-all duration-200 ${
-          mode === "system" ? "scale-100 opacity-100" : "scale-75 opacity-0"
-        }`}
-      >
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <path d="M8 21h8" />
-        <path d="M12 17v4" />
-      </svg>
-
-      {/* Light */}
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`absolute transition-all duration-200 ${
-          mode === "light" ? "scale-100 opacity-100" : "scale-75 opacity-0"
-        }`}
-      >
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2" />
-        <path d="M12 20v2" />
-        <path d="m4.93 4.93 1.41 1.41" />
-        <path d="m17.66 17.66 1.41 1.41" />
-        <path d="M2 12h2" />
-        <path d="M20 12h2" />
-        <path d="m6.34 17.66-1.41 1.41" />
-        <path d="m19.07 4.93-1.41 1.41" />
-      </svg>
-
-      {/* Dark */}
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`absolute transition-all duration-200 ${
-          mode === "dark" ? "scale-100 opacity-100" : "scale-75 opacity-0"
-        }`}
-      >
-        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-      </svg>
-
-      {/* Invisible spacer to maintain button size */}
-      <span className="invisible">
-        <svg width="20" height="20" />
-      </span>
-    </button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={cycle}
+            className="relative rounded-full text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+            aria-label={`Theme: ${mode}. Click to switch.`}
+          >
+            <Monitor
+              className={cn(
+                "!size-5 absolute transition-all duration-200",
+                mode === "system" ? "scale-100 opacity-100" : "scale-75 opacity-0"
+              )}
+            />
+            <Sun
+              className={cn(
+                "!size-5 absolute transition-all duration-200",
+                mode === "light" ? "scale-100 opacity-100" : "scale-75 opacity-0"
+              )}
+            />
+            <Moon
+              className={cn(
+                "!size-5 absolute transition-all duration-200",
+                mode === "dark" ? "scale-100 opacity-100" : "scale-75 opacity-0"
+              )}
+            />
+            {/* Invisible spacer to maintain button size */}
+            <span className="invisible size-5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Theme: {mode}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

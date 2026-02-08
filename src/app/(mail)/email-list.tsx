@@ -11,6 +11,7 @@ interface EmailData {
   is_starred: boolean;
   is_important: boolean;
   is_draft: boolean;
+  priority_score?: number;
   gmail_contacts: {
     id: string;
     name: string;
@@ -92,6 +93,7 @@ export function EmailList({
               name: l.name,
               color: l.color ?? "#666",
             }))}
+            priorityScore={email.priority_score}
           />
         );
       })}

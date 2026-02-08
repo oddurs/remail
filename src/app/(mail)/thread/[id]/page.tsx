@@ -9,6 +9,7 @@ import {
   ToolbarMoreMenu,
 } from "@/components/mail/thread-actions";
 import { ThreadMessages } from "@/components/mail/thread-messages";
+import { ThreadSummary } from "@/components/mail/thread-summary";
 
 async function getThread(threadId: string) {
   const sessionId = await requireSessionId();
@@ -16,7 +17,7 @@ async function getThread(threadId: string) {
 
   const { data: thread } = await supabase
     .from("gmail_threads")
-    .select("id, subject, is_muted")
+    .select("id, subject, is_muted, summary")
     .eq("id", threadId)
     .eq("session_id", sessionId)
     .single();
@@ -35,6 +36,7 @@ async function getThread(threadId: string) {
       is_read,
       is_starred,
       is_draft,
+      suggested_replies,
       from_contact_id,
       gmail_contacts!gmail_emails_from_contact_id_fkey (
         id,
@@ -178,6 +180,13 @@ export default async function ThreadPage({
           </div>
         )}
       </div>
+
+      {/* AI Summary */}
+      {thread.summary && (
+        <div className="shrink-0 px-6 pt-4">
+          <ThreadSummary summary={thread.summary} />
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
