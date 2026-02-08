@@ -27,17 +27,21 @@ Visitors land directly in the working email client. An "About This Project" over
 - Not a Chrome extension or Gmail skin
 - Not a startup pitch — it's a design exploration backed by working code
 
-## Project Phases
+## Roadmap
 
-| Phase           | Focus                                                        | Status      |
-| --------------- | ------------------------------------------------------------ | ----------- |
-| 1. Foundation   | Next.js scaffold, Supabase schema, design tokens, seed data  | Done        |
-| 2. Core UI      | Inbox list, thread view, sidebar, topbar, category tabs      | Done        |
-| 3. Interactions | Theme toggle, star/select actions, compose window, search    | In Progress |
-| 4. Polish       | Animations (Framer Motion), keyboard shortcuts, empty states | Planned     |
-| 5. AI Features  | Email summarization, smart categorization (mocked)           | Planned     |
-| 6. Showcase     | About overlay, case study content, OG cards, contact CTA     | Planned     |
-| 7. Ship         | Domain, final QA, performance audit, launch                  | Planned     |
+See **[docs/10-ROADMAP.md](./10-ROADMAP.md)** for the full sprint-based roadmap with task-level detail.
+
+| Release                     | Focus                                                                                            | Days | Status  |
+| --------------------------- | ------------------------------------------------------------------------------------------------ | ---- | ------- |
+| **R1 — Wire Up**            | Connect dead code, deduplicate EmailRow, wire thread actions + star toggle + search bar          | 3    | Next    |
+| **R2 — Core Interactions**  | Search page, snooze picker, toast notifications, error boundaries, settings layout               | 5    | Planned |
+| **R3 — Power Features**     | Multi-select, bulk actions, keyboard shortcuts, label management, Zod validation                 | 5    | Planned |
+| **R4 — Animation & Polish** | Framer Motion, list/compose/thread animations, micro-interactions, reduced motion, spacing audit | 4    | Planned |
+| **R5 — Mocked AI**          | Thread summaries, suggested replies, priority scoring (all pre-computed, no API)                 | 3    | Planned |
+| **R6 — Showcase**           | About panel overlay, case study content, OG image, social meta, welcome toast, README            | 4    | Planned |
+| **R7 — Ship**               | Performance audit, accessibility audit, cross-browser, custom domain, launch                     | 2    | Planned |
+
+**Priority order if time-constrained:** R1 → R6 → R2 → R4 → R7 → R3 → R5
 
 ## Key Design Decisions
 
