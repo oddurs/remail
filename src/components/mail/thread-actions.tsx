@@ -5,21 +5,33 @@ import { useRouter } from "next/navigation";
 import {
   toggleStar,
   archiveThread,
+  unarchiveThread,
   trashThread,
+  untrashThread,
   markThreadReadStatus,
 } from "@/lib/actions/email";
-import { useTransition } from "react";
+import { useToast } from "@/components/ui/toast";
+import { useState, useTransition } from "react";
+import { SnoozePicker } from "@/components/mail/snooze-picker";
 
 /* ─── Thread Toolbar Actions ─────────────────────────────────────────────────── */
 
 export function ThreadToolbarActions({ threadId }: { threadId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { showToast } = useToast();
 
   const handleArchive = () => {
     startTransition(async () => {
       await archiveThread(threadId);
       router.push("/");
+      showToast({
+        message: "Conversation archived",
+        action: {
+          label: "Undo",
+          onClick: () => unarchiveThread(threadId),
+        },
+      });
     });
   };
 
@@ -27,6 +39,13 @@ export function ThreadToolbarActions({ threadId }: { threadId: string }) {
     startTransition(async () => {
       await trashThread(threadId);
       router.push("/");
+      showToast({
+        message: "Conversation moved to Trash",
+        action: {
+          label: "Undo",
+          onClick: () => untrashThread(threadId),
+        },
+      });
     });
   };
 
@@ -141,6 +160,42 @@ export function StarButton({
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
     </button>
+  );
+}
+
+/* ─── Thread Snooze Button ──────────────────────────────────────────────────── */
+
+export function ThreadSnoozeButton({ emailId }: { emailId: string }) {
+  const [showSnooze, setShowSnooze] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShowSnooze((v) => !v)}
+        className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+        title="Snooze"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      </button>
+      {showSnooze && (
+        <SnoozePicker
+          emailId={emailId}
+          onClose={() => setShowSnooze(false)}
+        />
+      )}
+    </div>
   );
 }
 

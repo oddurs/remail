@@ -69,6 +69,22 @@ export async function archiveEmails(emailIds: string[]) {
   revalidatePath("/", "layout");
 }
 
+/* ─── Unarchive ─────────────────────────────────────────────────────────────── */
+
+export async function unarchiveEmails(emailIds: string[]) {
+  const sessionId = await requireSessionId();
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("gmail_emails")
+    .update({ is_archived: false })
+    .in("id", emailIds)
+    .eq("session_id", sessionId);
+
+  if (error) throw new Error(`Failed to unarchive: ${error.message}`);
+  revalidatePath("/", "layout");
+}
+
 /* ─── Move to Trash ──────────────────────────────────────────────────────────── */
 
 export async function trashEmails(emailIds: string[]) {
@@ -149,6 +165,38 @@ export async function archiveThread(threadId: string) {
   revalidatePath("/", "layout");
 }
 
+/* ─── Unarchive Thread ──────────────────────────────────────────────────────── */
+
+export async function unarchiveThread(threadId: string) {
+  const sessionId = await requireSessionId();
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("gmail_emails")
+    .update({ is_archived: false })
+    .eq("thread_id", threadId)
+    .eq("session_id", sessionId);
+
+  if (error) throw new Error(`Failed to unarchive thread: ${error.message}`);
+  revalidatePath("/", "layout");
+}
+
+/* ─── Untrash Thread ────────────────────────────────────────────────────────── */
+
+export async function untrashThread(threadId: string) {
+  const sessionId = await requireSessionId();
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("gmail_emails")
+    .update({ is_trash: false })
+    .eq("thread_id", threadId)
+    .eq("session_id", sessionId);
+
+  if (error) throw new Error(`Failed to untrash thread: ${error.message}`);
+  revalidatePath("/", "layout");
+}
+
 /* ─── Trash Thread ───────────────────────────────────────────────────────────── */
 
 export async function trashThread(threadId: string) {
@@ -179,6 +227,38 @@ export async function markThreadReadStatus(threadId: string, isRead: boolean) {
 
   if (error)
     throw new Error(`Failed to mark thread read status: ${error.message}`);
+  revalidatePath("/", "layout");
+}
+
+/* ─── Snooze Email ──────────────────────────────────────────────────────────── */
+
+export async function snoozeEmail(emailId: string, snoozeUntil: string) {
+  const sessionId = await requireSessionId();
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("gmail_emails")
+    .update({ snooze_until: snoozeUntil, is_archived: true })
+    .eq("id", emailId)
+    .eq("session_id", sessionId);
+
+  if (error) throw new Error(`Failed to snooze: ${error.message}`);
+  revalidatePath("/", "layout");
+}
+
+/* ─── Unsnooze Email ────────────────────────────────────────────────────────── */
+
+export async function unsnoozeEmail(emailId: string) {
+  const sessionId = await requireSessionId();
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("gmail_emails")
+    .update({ snooze_until: null, is_archived: false })
+    .eq("id", emailId)
+    .eq("session_id", sessionId);
+
+  if (error) throw new Error(`Failed to unsnooze: ${error.message}`);
   revalidatePath("/", "layout");
 }
 

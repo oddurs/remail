@@ -1,10 +1,12 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ThreadToolbarActions,
   StarButton,
+  ThreadSnoozeButton,
   ReplyButton,
   ForwardButton,
 } from "@/components/mail/thread-actions";
@@ -105,24 +107,7 @@ export default async function ThreadPage({
   const data = await getThread(id);
 
   if (!data) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-lg font-medium text-[var(--color-text-primary)]">
-            Thread not found
-          </h1>
-          <p className="mt-1 text-sm text-[var(--color-text-tertiary)]">
-            This conversation may have been deleted.
-          </p>
-          <Link
-            href="/"
-            className="mt-4 inline-block text-sm font-medium text-[var(--color-accent-primary)] hover:underline"
-          >
-            Back to Inbox
-          </Link>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
   const { thread, messages, labels } = data;
@@ -151,24 +136,7 @@ export default async function ThreadPage({
 
         <ThreadToolbarActions threadId={thread.id} />
 
-        <button
-          className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
-          title="Snooze"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-        </button>
+        <ThreadSnoozeButton emailId={messages[0]?.id ?? thread.id} />
         <button
           className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
           title="Labels"

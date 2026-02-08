@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { requireSessionId } from "@/lib/session";
 import { formatRelativeDate } from "@/lib/utils";
 import { EmailRow } from "@/components/mail/email-row";
+import { RefreshButton } from "./refresh-button";
 import Link from "next/link";
 
 async function getInboxEmails(category: string = "primary") {
@@ -158,23 +159,7 @@ export default async function InboxPage({
         </button>
 
         {/* Refresh */}
-        <button className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-            <path d="M16 16h5v5" />
-          </svg>
-        </button>
+        <RefreshButton />
 
         {/* More */}
         <button className="rounded-[var(--radius-full)] p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">

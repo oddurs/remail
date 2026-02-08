@@ -1,12 +1,16 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   toggleStar,
   archiveEmails,
+  unarchiveEmails,
   trashEmails,
+  untrashEmails,
   markReadStatus,
 } from "@/lib/actions/email";
+import { useToast } from "@/components/ui/toast";
+import { SnoozePicker } from "@/components/mail/snooze-picker";
 
 export function EmailRow({
   emailId,
@@ -35,6 +39,8 @@ export function EmailRow({
 }) {
   const [isStarPending, startStarTransition] = useTransition();
   const [isActionPending, startActionTransition] = useTransition();
+  const [showSnooze, setShowSnooze] = useState(false);
+  const { showToast } = useToast();
 
   const handleStarClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -49,6 +55,13 @@ export function EmailRow({
     e.stopPropagation();
     startActionTransition(async () => {
       await archiveEmails([emailId]);
+      showToast({
+        message: "Conversation archived",
+        action: {
+          label: "Undo",
+          onClick: () => unarchiveEmails([emailId]),
+        },
+      });
     });
   };
 
@@ -57,6 +70,13 @@ export function EmailRow({
     e.stopPropagation();
     startActionTransition(async () => {
       await trashEmails([emailId]);
+      showToast({
+        message: "Conversation moved to Trash",
+        action: {
+          label: "Undo",
+          onClick: () => untrashEmails([emailId]),
+        },
+      });
     });
   };
 
@@ -288,29 +308,37 @@ export function EmailRow({
         </button>
 
         {/* Snooze */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // Snooze picker will be added later
-          }}
-          className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
-          title="Snooze"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowSnooze((v) => !v);
+            }}
+            className="rounded-[var(--radius-full)] p-1.5 text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-secondary)]"
+            title="Snooze"
           >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-        </button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </button>
+          {showSnooze && (
+            <SnoozePicker
+              emailId={emailId}
+              onClose={() => setShowSnooze(false)}
+            />
+          )}
+        </div>
       </div>
     </a>
   );
